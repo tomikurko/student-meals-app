@@ -1,10 +1,7 @@
 package com.studentmeals.server.model
 
-import com.studentmeals.server.db.jooq.tables.records.RecipesRecord
-
 data class Recipe(
     val id: Int,
-    val title: String
+    val title: String,
+    val ingredients: List<Ingredient>
 )
-
-fun RecipesRecord.toModel(): Recipe = Recipe(id!!, title!!)

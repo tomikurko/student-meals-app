@@ -1,0 +1,9 @@
+ALTER TABLE recipes
+ADD PRIMARY KEY (id);
+
+CREATE TABLE ingredients (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    recipe_id INTEGER NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
+    amount TEXT,
+    description TEXT NOT NULL
+)
