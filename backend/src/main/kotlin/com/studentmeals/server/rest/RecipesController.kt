@@ -18,10 +18,17 @@ import org.springframework.web.server.ResponseStatusException
 class RecipesController(private val create: DSLContext) {
 
     @GetMapping("/", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getAll(): List<Recipe> =
-        create.selectFrom(RECIPES)
-              .fetch()
-              .map { it.toModel().let { it.copy(ingredients = getIngredients(it.id), equipment = getEquipment(it.id)) } }
+    fun getAll(@RequestParam(required = false) titleContains: String?): List<Recipe> =
+        (if (titleContains == null)
+             create
+                 .selectFrom(RECIPES)
+                 .fetch()
+         else
+             create
+                 .selectFrom(RECIPES)
+                 .where(RECIPES.TITLE.containsIgnoreCase(titleContains))
+                 .fetch()
+        ).map { it.toModel().let { it.copy(ingredients = getIngredients(it.id), equipment = getEquipment(it.id)) } }
 
     @GetMapping("/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getOne(@PathVariable id: Int): Recipe? =
