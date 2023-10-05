@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
-@RequestMapping("/api/v1/recipes")
+@RequestMapping("/api/v1")
 class RecipesController(private val create: DSLContext) {
 
-    @GetMapping("/", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/recipes", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getAll(@RequestParam(required = false) titleContains: String?): List<Recipe> =
         (if (titleContains == null)
              create
@@ -30,7 +30,7 @@ class RecipesController(private val create: DSLContext) {
                  .fetch()
         ).map { it.toModel().let { it.copy(ingredients = getIngredients(it.id), equipment = getEquipment(it.id)) } }
 
-    @GetMapping("/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/recipes/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getOne(@PathVariable id: Int): Recipe? =
         create.selectFrom(RECIPES)
               .where(RECIPES.ID.eq(id))
@@ -38,7 +38,7 @@ class RecipesController(private val create: DSLContext) {
               ?.let { it.toModel().copy(ingredients = getIngredients(id), equipment = getEquipment(id)) }
               ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "recipe not found")
 
-    @PostMapping("/", consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping("/recipes", consumes = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     fun postOne(@RequestBody recipe: Recipe) {
         val recipeRecord = create
