@@ -79,6 +79,13 @@ class RecipesController(private val create: DSLContext) {
         }
     }
 
+    @DeleteMapping("/recipes/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    fun deleteOne(@PathVariable id: Int) =
+        if (create.deleteFrom(RECIPES)
+            .where(RECIPES.ID.eq(id))
+            .execute() == 1) Unit else throw ResponseStatusException(HttpStatus.NOT_FOUND, "recipe not found")
+
     private fun getIngredients(recipeId: Int): List<Ingredient> =
         create
             .selectFrom(INGREDIENTS)
