@@ -1,8 +1,10 @@
 package com.studentmeals.server.rest
 
+import com.studentmeals.server.db.jooq.tables.references.EQUIPMENT
 import com.studentmeals.server.db.jooq.tables.references.INGREDIENTS
 import com.studentmeals.server.db.jooq.tables.references.RECIPES
 import com.studentmeals.server.db.toModel
+import com.studentmeals.server.model.Equipment
 import com.studentmeals.server.model.Ingredient
 import com.studentmeals.server.model.Recipe
 import org.jooq.DSLContext
@@ -19,14 +21,14 @@ class RecipesController(private val create: DSLContext) {
     fun getAll(): List<Recipe> =
         create.selectFrom(RECIPES)
               .fetch()
-              .map { it.toModel().let { it.copy(ingredients = getIngredients(it.id)) } }
+              .map { it.toModel().let { it.copy(ingredients = getIngredients(it.id), equipment = getEquipment(it.id)) } }
 
     @GetMapping("/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getOne(@PathVariable id: Int): Recipe? =
         create.selectFrom(RECIPES)
               .where(RECIPES.ID.eq(id))
               .fetchOne()
-              ?.let { it.toModel().copy(ingredients = getIngredients(id)) }
+              ?.let { it.toModel().copy(ingredients = getIngredients(id), equipment = getEquipment(id)) }
               ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "recipe not found")
 
     @PostMapping("/", consumes = [MediaType.APPLICATION_JSON_VALUE])
@@ -40,6 +42,7 @@ class RecipesController(private val create: DSLContext) {
 
         if (recipeRecord != null) {
             val recipeId = recipeRecord.getValue(RECIPES.ID)!!
+
             val insertedIngredientsCount = recipe.ingredients.sumOf { ingredient ->
                 create
                     .insertInto(INGREDIENTS, INGREDIENTS.RECIPE_ID, INGREDIENTS.AMOUNT, INGREDIENTS.DESCRIPTION)
@@ -51,6 +54,18 @@ class RecipesController(private val create: DSLContext) {
                 throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "failed to insert one or more ingredients to database")
             }
+
+            val insertedEquipmentCount = recipe.equipment.sumOf { equipment ->
+                create
+                    .insertInto(EQUIPMENT, EQUIPMENT.RECIPE_ID, EQUIPMENT.NAME)
+                    .values(recipeId, equipment.name)
+                    .execute()
+            }
+
+            if (insertedEquipmentCount != recipe.equipment.size) {
+                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "failed to insert one or more equipment to database")
+            }
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                 "failed to insert a recipe to database")
@@ -61,6 +76,13 @@ class RecipesController(private val create: DSLContext) {
         create
             .selectFrom(INGREDIENTS)
             .where(INGREDIENTS.RECIPE_ID.eq(recipeId))
+            .fetch()
+            .map { it.toModel() }
+
+    private fun getEquipment(recipeId: Int): List<Equipment> =
+        create
+            .selectFrom(EQUIPMENT)
+            .where(EQUIPMENT.RECIPE_ID.eq(recipeId))
             .fetch()
             .map { it.toModel() }
 }
