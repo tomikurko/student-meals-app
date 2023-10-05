@@ -8,7 +8,7 @@ import com.studentmeals.server.model.Ingredient
 import com.studentmeals.server.model.Recipe
 
 
-fun RecipesRecord.toModel(): Recipe = Recipe(id!!, title!!, emptyList(), emptyList())
+fun RecipesRecord.toModel(): Recipe = Recipe(id!!, title!!, description, emptyList(), emptyList())
 
 fun IngredientsRecord.toModel(): Ingredient = Ingredient(id!!, amount, description!!)
 
