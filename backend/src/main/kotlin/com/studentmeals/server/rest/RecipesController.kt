@@ -18,17 +18,49 @@ import org.springframework.web.server.ResponseStatusException
 class RecipesController(private val create: DSLContext) {
 
     @GetMapping("/recipes", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getAll(@RequestParam(required = false) titleContains: String?): List<Recipe> =
-        (if (titleContains == null)
-             create
-                 .selectFrom(RECIPES)
-                 .fetch()
-         else
-             create
-                 .selectFrom(RECIPES)
-                 .where(RECIPES.TITLE.containsIgnoreCase(titleContains))
-                 .fetch()
+    fun getAll(@RequestParam(required = false) titleContains: String?,
+               @RequestParam(required = false) ingredientsContain: List<String>?): List<Recipe> {
+
+        fun getRecipeIdsByTitle(titleContains: String?): Set<Int>? =
+            if (titleContains == null)
+                null
+            else
+                create
+                    .select(RECIPES.ID)
+                    .from(RECIPES)
+                    .where(RECIPES.TITLE.containsIgnoreCase(titleContains))
+                    .fetch()
+                    .map { it.value1()!! }
+                    .toSet()
+
+        fun getRecipeIdsByIngredient(ingredientContains: String): Set<Int> =
+            create
+                .select(INGREDIENTS.RECIPE_ID)
+                .from(INGREDIENTS)
+                .where(INGREDIENTS.DESCRIPTION.containsIgnoreCase(ingredientContains))
+                .fetch()
+                .map { it.value1()!! }
+                .toSet()
+
+        fun getRecipeIdsByIngredients(ingredientsContain: List<String>?): Set<Int>? =
+            ingredientsContain?.map { getRecipeIdsByIngredient(it) }?.reduce { acc, ids -> acc.intersect(ids) }
+
+        val recipeIds = listOf(getRecipeIdsByTitle(titleContains),
+                               getRecipeIdsByIngredients(ingredientsContain))
+            .filterNotNull()
+            .reduceOrNull { acc, ids -> acc.intersect(ids) }
+
+        return (if (recipeIds == null)
+            create
+                .selectFrom(RECIPES)
+                .fetch()
+        else
+            create
+                .selectFrom(RECIPES)
+                .where(RECIPES.ID.`in`(recipeIds))
+                .fetch()
         ).map { it.toModel().let { it.copy(ingredients = getIngredients(it.id), equipment = getEquipment(it.id)) } }
+    }
 
     @GetMapping("/recipes/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getOne(@PathVariable id: Int): Recipe? =
