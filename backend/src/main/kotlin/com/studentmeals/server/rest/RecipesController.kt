@@ -43,7 +43,7 @@ class RecipesController(private val create: DSLContext) {
                 .toSet()
 
         fun getRecipeIdsByIngredients(ingredientsContain: List<String>?): Set<Int>? =
-            ingredientsContain?.map { getRecipeIdsByIngredient(it) }?.reduce { acc, ids -> acc.intersect(ids) }
+            ingredientsContain?.map { getRecipeIdsByIngredient(it) }?.reduceOrNull { acc, ids -> acc.intersect(ids) }
 
         val recipeIds = listOf(getRecipeIdsByTitle(titleContains),
                                getRecipeIdsByIngredients(ingredientsContain))
