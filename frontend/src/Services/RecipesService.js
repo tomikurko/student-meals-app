@@ -36,11 +36,11 @@ const getRecipe = async (id) => {
   }
 };
 
-const postRecipe = async (title) => {
+const postRecipe = async (title, amounts, ingredients) => {
   try {
     const response = await axiosInstance.post(path + "/recipes", {
       title,
-      ingredients: [],
+      ingredients: ingredients.map((ingredient, index) => ({ amount: amounts[index], description: ingredient })),
       equipment: []
     });
 
