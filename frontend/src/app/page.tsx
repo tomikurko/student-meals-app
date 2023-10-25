@@ -7,8 +7,9 @@ import '@fontsource/roboto/700.css';
 
 import React, { useState } from "react";
 import Button from '@mui/material/Button';
-import { getRecipes } from "./Services/RecipesService";
-import { Box, Card, CardContent, Container, Divider, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
+import { getRecipes } from "../Services/RecipesService";
+import { Card, CardContent, Container, Stack, TextField, Typography } from "@mui/material";
+import Link from 'next/link';
 
 export default function Home() {
   const [recipes, setRecipes] = useState([]);
@@ -19,13 +20,11 @@ export default function Home() {
     e.preventDefault();
     const recipes = await getRecipes(title, ingredients);
     setRecipes(recipes);
-    console.log(recipes);
   };
 
   const onClickAddIngredient = async (e) => {
     e.preventDefault();
     setIngredients(ingredients.concat([""]));
-    console.log(ingredients);
   };
 
   const onTitleChange = (e) => {
@@ -40,94 +39,52 @@ export default function Home() {
   return (
     <>
       <Container sx={{display: 'flex', justifyContent: 'center'}}>
-        <Stack spacing={5} sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-        <Typography variant="h1">Student Meals</Typography>
+        <Stack spacing={2} sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+          <Typography variant="h1">Student Meals</Typography>
 
-        <Typography variant="h2">Search recipes</Typography>
+          <Link href="/post-recipe"><Typography variant="h2">Post recipes</Typography></Link>
 
-        <form onSubmit={onClickSearch}>
-          <TextField id="title-contains-search" label="Search by title" type="search" onChange={onTitleChange} />
-          {ingredients.map((ingredient, index) => (
-            <>
-              <br/>
-              <br/>
-              <TextField id="ingredients-contain-search-{index}"
-              label="Search by ingredients" type="search" onChange={(e) => onIngredientsChange(index, e)}
-              defaultValue={ingredient} />
-            </>
-          ))}
-          <br/>
-          <br/>
-          <Button variant="contained" onClick={onClickAddIngredient}>+</Button>
-          <br/>
-          <br/>
+          <Typography variant="h2">Search recipes</Typography>
 
-          <Button variant="contained" type="submit">Search</Button>
-        </form>
-        <br/>
-        <br/>
+          <form onSubmit={onClickSearch}>
+            <TextField id="title-contains-search" label="Search by title" type="search" onChange={onTitleChange} />
+            {ingredients.map((ingredient, index) => (
+              <>
+                <br/>
+                <br/>
+                <TextField id="ingredients-contain-search-{index}"
+                label="Search by ingredients" type="search" onChange={(e) => onIngredientsChange(index, e)}
+                defaultValue={ingredient} />
+              </>
+            ))}
+            <br/>
+            <br/>
+            <Button variant="contained" onClick={onClickAddIngredient}>+</Button>
+            <br/>
+            <br/>
+
+            <Button variant="contained" type="submit">Search</Button>
+          </form>
+          <br/>
+          <br/>
 
           {recipes.map((recipe) => (
             <>
-              <Card sx={{ maxWidth: 700 }}>
+
+              <Card sx={{ minWidth: 700 }}>
                 <CardContent>
-                  <Stack spacing={5}>
-                    <Box justifyContent="center" display="flex">
-                      <Typography variant="h5">{recipe.title}</Typography>
-                    </Box>
 
-                    <Stack direction="row" spacing={3}>
-                      <Stack spacing={5}>
-                        <TableContainer component={Card}>
-                          <Table sx={{ minWidth: 300 }}>
-                            <colgroup>
-                              <col width="35%" />
-                              <col width="65%" />
-                            </colgroup>
-                            <TableHead>
-                              <TableRow>
-                                <TableCell>Amount</TableCell>
-                                <TableCell>Ingredient</TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {recipe.ingredients.map((ingredient) => (
-                                <TableRow key={ingredient.id}>
-                                  <TableCell component="th" scope="row">{ingredient.amount}</TableCell>
-                                  <TableCell>{ingredient.description}</TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-
-                        <TableContainer component={Card}>
-                          <Table sx={{ minWidth: 300 }}>
-                            <TableHead>
-                              <TableRow>
-                                <TableCell>Equipment</TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {recipe.equipment.map((equipment) => (
-                                <TableRow key={equipment.id}>
-                                  <TableCell component="th" scope="row">{equipment.name}</TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-                      </Stack>
-
-                      <Card sx={{ minWidth: 340 }}>
-                        <CardContent>
-                          <Typography variant="body1">{recipe.description}</Typography>
-                        </CardContent>
-                      </Card>
-                    </Stack>
+                  <Stack spacing={3} sx={{ textAlign: 'left' }}>
+                    <Link href={"/recipes/" + recipe.id}><Typography variant="h5">{recipe.title}</Typography></Link>
+                    <br/>
+                    {recipe.ingredients.length} ingredients
+                    &nbsp;– &nbsp;
+                    {recipe.equipment.length} equipment
                   </Stack>
+
                 </CardContent>
               </Card>
+
             </>
           ))}
         </Stack>
