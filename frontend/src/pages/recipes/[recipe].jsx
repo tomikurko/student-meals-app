@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useEffect, useState } from "react";
-import { getRecipe } from "../../Services/RecipesService";
-import { Box, Card, CardContent, Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { getRecipe, removeRecipe } from "../../Services/RecipesService";
+import { Alert, Box, Button, Card, CardContent, Container, Divider, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
 export default function GetRecipe() {
   const [recipe, setRecipe] = useState(undefined);
+  const [removeSuccess, setRemoveSuccess] = useState(undefined);
 
   const router = useRouter()
   const recipeId = router.query.recipe
@@ -15,6 +16,11 @@ export default function GetRecipe() {
   useEffect(() => {
     recipeId && (async () => setRecipe(await getRecipe(recipeId)))();
   }, [recipeId]);
+
+  const onClickRemove = async () => {
+    setRemoveSuccess(
+      await removeRecipe(recipe.id));
+  };
 
   return (
     <>
@@ -99,6 +105,19 @@ export default function GetRecipe() {
                     </Card>
 
                   </Stack>
+
+                  <hr />
+
+                  <Stack direction="row" justifyContent="center" spacing={3}>
+                    <Button variant="contained" onClick={onClickRemove}>Remove</Button>
+                  </Stack>
+
+                  {removeSuccess && (
+                    <Alert severity="success">Recipe removed successfully</Alert>
+                  )}
+                  {removeSuccess === false && (
+                    <Alert severity="error">Failed to remove the recipe!</Alert>
+                  )}
                 </Stack>
 
               </CardContent>

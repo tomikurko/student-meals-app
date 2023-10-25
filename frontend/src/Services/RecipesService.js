@@ -52,4 +52,15 @@ const postRecipe = async (title, amounts, ingredients, equipment, description) =
   }
 };
 
-export { getRecipe, getRecipes, postRecipe };
+const removeRecipe = async (id) => {
+  try {
+    const response = await axiosInstance.delete(path + "/recipes/" + id);
+
+    return response.status === HttpStatusCode.Ok;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+};
+
+export { getRecipe, getRecipes, postRecipe, removeRecipe };
