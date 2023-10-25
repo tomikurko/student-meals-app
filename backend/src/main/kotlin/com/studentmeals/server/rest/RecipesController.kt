@@ -19,7 +19,16 @@ class RecipesController(private val create: DSLContext) {
 
     @GetMapping("/recipes", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getAll(@RequestParam(required = false) titleContains: String?,
-               @RequestParam(required = false) ingredientsContain: List<String>?): List<Recipe> {
+               @RequestParam(required = false) ingredientsContain: List<String>?,
+               @RequestParam(required = false) equipmentDontContain: List<String>?): List<Recipe> {
+
+        fun getAllRecipeIds(): Set<Int> =
+            create
+                .select(RECIPES.ID)
+                .from(RECIPES)
+                .fetch()
+                .map { it.value1()!! }
+                .toSet()
 
         fun getRecipeIdsByTitle(titleContains: String?): Set<Int>? =
             if (titleContains == null)
@@ -45,8 +54,29 @@ class RecipesController(private val create: DSLContext) {
         fun getRecipeIdsByIngredients(ingredientsContain: List<String>?): Set<Int>? =
             ingredientsContain?.map { getRecipeIdsByIngredient(it) }?.reduceOrNull { acc, ids -> acc.intersect(ids) }
 
+        fun getRecipeIdsByEquipment(equipmentContains: String): Set<Int> =
+            create
+                .select(EQUIPMENT.RECIPE_ID)
+                .from(EQUIPMENT)
+                .where(EQUIPMENT.NAME.containsIgnoreCase(equipmentContains))
+                .fetch()
+                .map { it.value1()!! }
+                .toSet()
+
+        fun getRecipeIdsByOneOfEquipment(equipmentContainOneOf: List<String>): Set<Int> =
+            equipmentContainOneOf.map { getRecipeIdsByEquipment(it) }.reduce { acc, ids -> acc.union(ids) }
+
+        fun getRecipeIdsByDisallowedEquipment(equipmentDontContain: List<String>?): Set<Int>? =
+            if (equipmentDontContain.isNullOrEmpty())
+                null
+            else
+                getAllRecipeIds().minus(
+                    getRecipeIdsByOneOfEquipment(
+                        equipmentDontContain.filter { it.isNotBlank() }))
+
         val recipeIds = listOf(getRecipeIdsByTitle(titleContains),
-                               getRecipeIdsByIngredients(ingredientsContain))
+                               getRecipeIdsByIngredients(ingredientsContain),
+                               getRecipeIdsByDisallowedEquipment(equipmentDontContain))
             .filterNotNull()
             .reduceOrNull { acc, ids -> acc.intersect(ids) }
 
