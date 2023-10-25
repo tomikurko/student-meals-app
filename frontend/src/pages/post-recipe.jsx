@@ -11,6 +11,7 @@ export default function PostRecipe() {
   const [submitSuccess, setSubmitSuccess] = useState(undefined);
   const [amounts, setAmounts] = useState([""]);
   const [ingredients, setIngredients] = useState([""]);
+  const [equipment, setEquipment] = useState([""]);
 
   const onTitleChange = (e) => {
     setTitle(e.target.value);
@@ -26,6 +27,11 @@ export default function PostRecipe() {
     setIngredients(ingredients);
   };
 
+  const onEquipmentChange = (index, event) => {
+    equipment[index] = event.target.value;
+    setEquipment(equipment);
+  };
+
   const onClickAddIngredient = async (e) => {
     e.preventDefault();
     setAmounts(amounts.concat([""]));
@@ -34,14 +40,22 @@ export default function PostRecipe() {
 
   const onClickRemoveIngredient = (index) => {
     setAmounts(amounts.slice(0, index).concat(amounts.slice(index+1)));
-    console.log(amounts);
     setIngredients(ingredients.slice(0, index).concat(ingredients.slice(index+1)));
-    console.log(ingredients);
+  };
+
+  const onClickAddEquipment = async (e) => {
+    e.preventDefault();
+    setEquipment(equipment.concat([""]));
+  };
+
+  const onClickRemoveEquipment = (index) => {
+    setEquipment(equipment.slice(0, index).concat(equipment.slice(index+1)));
   };
 
   const onClickSubmit = async (e) => {
     e.preventDefault();
-    setSubmitSuccess(await postRecipe(title, amounts, ingredients))
+    setSubmitSuccess(
+      await postRecipe(title, amounts, ingredients, equipment.filter((item) => item && item != "")))
   };
 
   return (
@@ -83,6 +97,27 @@ export default function PostRecipe() {
             <br/>
             <br/>
             <Button variant="contained" onClick={onClickAddIngredient}>+</Button>
+            <br/>
+
+            {equipment.map((equipment, index) => (
+              <>
+                <br/>
+                <br/>
+                <TextField id="equipment-{index}"
+                label="Equipment" type="text" key={"E_" + Math.random()} onChange={(e) => onEquipmentChange(index, e)}
+                defaultValue={equipment} />
+
+                &nbsp;&nbsp;&nbsp;&nbsp;
+
+                {index > 0
+                 ? <Button variant="contained" onClick={() => onClickRemoveEquipment(index)}>-</Button>
+                 : <Button variant="contained" disabled>-</Button>
+                 }
+              </>
+            ))}
+            <br/>
+            <br/>
+            <Button variant="contained" onClick={onClickAddEquipment}>+</Button>
             <br/>
             <br/>
 

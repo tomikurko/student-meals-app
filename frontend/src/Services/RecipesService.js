@@ -36,12 +36,12 @@ const getRecipe = async (id) => {
   }
 };
 
-const postRecipe = async (title, amounts, ingredients) => {
+const postRecipe = async (title, amounts, ingredients, equipment) => {
   try {
     const response = await axiosInstance.post(path + "/recipes", {
       title,
       ingredients: ingredients.map((ingredient, index) => ({ amount: amounts[index], description: ingredient })),
-      equipment: []
+      equipment: equipment.map((equipment) => ({ name: equipment }))
     });
 
     return response.status === HttpStatusCode.Created;
