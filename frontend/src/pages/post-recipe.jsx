@@ -12,6 +12,7 @@ export default function PostRecipe() {
   const [amounts, setAmounts] = useState([""]);
   const [ingredients, setIngredients] = useState([""]);
   const [equipment, setEquipment] = useState([""]);
+  const [description, setDescription] = useState("");
 
   const onTitleChange = (e) => {
     setTitle(e.target.value);
@@ -30,6 +31,10 @@ export default function PostRecipe() {
   const onEquipmentChange = (index, event) => {
     equipment[index] = event.target.value;
     setEquipment(equipment);
+  };
+
+  const onDescriptionChange = (e) => {
+    setDescription(e.target.value);
   };
 
   const onClickAddIngredient = async (e) => {
@@ -55,7 +60,10 @@ export default function PostRecipe() {
   const onClickSubmit = async (e) => {
     e.preventDefault();
     setSubmitSuccess(
-      await postRecipe(title, amounts, ingredients, equipment.filter((item) => item && item != "")))
+      await postRecipe(
+        title, amounts, ingredients,
+        equipment.filter((item) => item && item != ""),
+        description))
   };
 
   return (
@@ -68,9 +76,11 @@ export default function PostRecipe() {
           <Link href="/"><Typography variant="h2">Search recipes</Typography></Link>
 
           <Typography variant="h2">Post recipes</Typography>
+          <br/>
 
           <form onSubmit={onClickSubmit}>
             <TextField id="title" label="Title" type="text" required onChange={onTitleChange} />
+            <br/>
 
             {ingredients.map((ingredient, index) => (
               <>
@@ -118,6 +128,12 @@ export default function PostRecipe() {
             <br/>
             <br/>
             <Button variant="contained" onClick={onClickAddEquipment}>+</Button>
+            <br/>
+            <br/>
+            <br/>
+
+            <TextField id="description" label="Description" multiline rows={10} sx={{ width: '60ch' }} onChange={onDescriptionChange} />
+            <br/>
             <br/>
             <br/>
 

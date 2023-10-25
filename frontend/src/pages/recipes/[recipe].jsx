@@ -92,7 +92,9 @@ export default function GetRecipe() {
 
                     <Card sx={{ minWidth: 340 }}>
                       <CardContent>
-                        <Typography variant="body1">{recipe.description}</Typography>
+                        <div className="multiline">
+                          <Typography variant="body1">{recipe.description}</Typography>
+                        </div>
                       </CardContent>
                     </Card>
 

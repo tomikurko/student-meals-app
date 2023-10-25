@@ -36,3 +36,8 @@ form
 {
     display: inline-block;
 }
+
+.multiline {
+  white-space: pre-wrap;
+  text-align: left;
+}
