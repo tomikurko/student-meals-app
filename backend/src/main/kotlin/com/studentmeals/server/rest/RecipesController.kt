@@ -104,8 +104,8 @@ class RecipesController(private val create: DSLContext) {
     @ResponseStatus(HttpStatus.CREATED)
     fun postOne(@RequestBody recipe: Recipe) {
         val recipeRecord = create
-            .insertInto(RECIPES, RECIPES.TITLE, RECIPES.DESCRIPTION)
-            .values(recipe.title, recipe.description)
+            .insertInto(RECIPES, RECIPES.TITLE, RECIPES.DESCRIPTION, RECIPES.PRICE_PER_MEAL)
+            .values(recipe.title, recipe.description, recipe.pricePerMeal)
             .returningResult(RECIPES.ID)
             .fetchOne()
 
