@@ -45,9 +45,11 @@ export default function GetRecipe() {
               <CardContent>
 
                 <Stack spacing={5}>
-                  <Box justifyContent="center" display="flex">
+                  <Stack spacing={1}>
                     <Typography variant="h5">{recipe.title}</Typography>
-                  </Box>
+                    <br/>
+                    <Typography variant="subtitle1">{recipe.pricePerMeal} €/meal</Typography>
+                  </Stack>
 
                   <Stack direction="row" spacing={3}>
                     <Stack spacing={5}>

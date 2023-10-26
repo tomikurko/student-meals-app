@@ -104,6 +104,8 @@ export default function Home() {
                   <Stack spacing={3} sx={{ textAlign: 'left' }}>
                     <Link href={"/recipes/" + recipe.id}><Typography variant="h5">{recipe.title}</Typography></Link>
                     <br/>
+                    {recipe.pricePerMeal ?? "-"} €
+                    &nbsp;– &nbsp;
                     {recipe.ingredients.length} ingredients
                     &nbsp;– &nbsp;
                     {recipe.equipment.length} equipment

@@ -8,6 +8,7 @@ import Link from "next/link";
 
 export default function PostRecipe() {
   const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(undefined);
   const [amounts, setAmounts] = useState([""]);
   const [ingredients, setIngredients] = useState([""]);
@@ -16,6 +17,10 @@ export default function PostRecipe() {
 
   const onTitleChange = (e) => {
     setTitle(e.target.value);
+  };
+
+  const onPriceChange = (e) => {
+    setPrice(e.target.value);
   };
 
   const onAmountsChange = (index, event) => {
@@ -61,7 +66,7 @@ export default function PostRecipe() {
     e.preventDefault();
     setSubmitSuccess(
       await postRecipe(
-        title, amounts, ingredients,
+        title, price, amounts, ingredients,
         equipment.filter((item) => item && item != ""),
         description))
   };
@@ -80,6 +85,11 @@ export default function PostRecipe() {
 
           <form onSubmit={onClickSubmit}>
             <TextField id="title" label="Title" type="text" required onChange={onTitleChange} />
+            <br/>
+            <br/>
+
+            <TextField id="price" label="Price per meal (€)"
+             inputProps={{ inputMode: 'numeric', pattern: '^[0-9]{1,4}(?:\\.[0-9]{1,2})?$' }} onChange={onPriceChange} />
             <br/>
 
             {ingredients.map((ingredient, index) => (
