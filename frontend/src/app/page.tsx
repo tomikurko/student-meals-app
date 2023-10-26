@@ -15,17 +15,7 @@ export default function Home() {
   const [recipes, setRecipes] = useState([]);
   const [title, setTitle] = useState("");
   const [ingredients, setIngredients] = useState([""]);
-
-  const onClickSearch = async (e) => {
-    e.preventDefault();
-    const recipes = await getRecipes(title, ingredients);
-    setRecipes(recipes);
-  };
-
-  const onClickAddIngredient = async (e) => {
-    e.preventDefault();
-    setIngredients(ingredients.concat([""]));
-  };
+  const [equipment, setEquipment] = useState([""]);
 
   const onTitleChange = (e) => {
     setTitle(e.target.value);
@@ -34,6 +24,27 @@ export default function Home() {
   const onIngredientsChange = (index, event) => {
     ingredients[index] = event.target.value;
     setIngredients(ingredients);
+  };
+
+  const onClickAddIngredient = async (e) => {
+    e.preventDefault();
+    setIngredients(ingredients.concat([""]));
+  };
+
+  const onEquipmentChange = (index, event) => {
+    equipment[index] = event.target.value;
+    setEquipment(equipment);
+  };
+
+  const onClickAddEquipment = async (e) => {
+    e.preventDefault();
+    setEquipment(equipment.concat([""]));
+  };
+
+  const onClickSearch = async (e) => {
+    e.preventDefault();
+    const recipes = await getRecipes(title, ingredients, equipment);
+    setRecipes(recipes);
   };
 
   return (
@@ -48,6 +59,7 @@ export default function Home() {
 
           <form onSubmit={onClickSearch}>
             <TextField id="title-contains-search" label="Search by title" type="search" onChange={onTitleChange} />
+
             {ingredients.map((ingredient, index) => (
               <>
                 <br/>
@@ -60,6 +72,21 @@ export default function Home() {
             <br/>
             <br/>
             <Button variant="contained" onClick={onClickAddIngredient}>+</Button>
+            <br/>
+
+            {equipment.map((equipment, index) => (
+              <>
+                <br/>
+                <br/>
+                <TextField id="disallowed-equipment-search-{index}"
+                label="Search by disallowed equipment" type="search" onChange={(e) => onEquipmentChange(index, e)}
+                defaultValue={equipment} />
+              </>
+            ))}
+            <br/>
+            <br/>
+            <Button variant="contained" onClick={onClickAddEquipment}>+</Button>
+            <br/>
             <br/>
             <br/>
 

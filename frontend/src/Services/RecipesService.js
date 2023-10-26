@@ -8,11 +8,12 @@ const axiosInstance = axios.create({
 });
 const path = "http://localhost:8080/api/v1";
 
-const getRecipes = async (title, ingredients) => {
+const getRecipes = async (title, ingredients, disallowedEquipment) => {
   try {
     const params = {
       titleContains: title,
-      ingredientsContain: ingredients
+      ingredientsContain: ingredients,
+      equipmentDontContain: disallowedEquipment
     };
     const response = await axiosInstance.get(path + "/recipes", {
        params,
