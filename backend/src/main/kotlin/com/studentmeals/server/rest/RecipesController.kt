@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import java.math.BigDecimal
 
 @RestController
 @RequestMapping("/api/v1")
@@ -20,7 +21,9 @@ class RecipesController(private val create: DSLContext) {
     @GetMapping("/recipes", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getAll(@RequestParam(required = false) titleContains: String?,
                @RequestParam(required = false) ingredientsContain: List<String>?,
-               @RequestParam(required = false) equipmentDontContain: List<String>?): List<Recipe> {
+               @RequestParam(required = false) equipmentDontContain: List<String>?,
+               @RequestParam(required = false) minPrice: BigDecimal?,
+               @RequestParam(required = false) maxPrice: BigDecimal?): List<Recipe> {
 
         fun getAllRecipeIds(): Set<Int> =
             create
@@ -74,9 +77,22 @@ class RecipesController(private val create: DSLContext) {
                     getRecipeIdsByOneOfEquipment(
                         equipmentDontContain.filter { it.isNotBlank() }))
 
+        fun getRecipeIdsByPriceRange(minPrice: BigDecimal?, maxPrice: BigDecimal?): Set<Int>? =
+            if (minPrice == null && maxPrice == null)
+                null
+            else
+                create
+                    .select(RECIPES.ID)
+                    .from(RECIPES)
+                    .where(RECIPES.PRICE_PER_MEAL.between(minPrice ?: BigDecimal.ZERO, maxPrice ?: BigDecimal(10_000.0)))
+                    .fetch()
+                    .map { it.value1()!! }
+                    .toSet()
+
         val recipeIds = listOf(getRecipeIdsByTitle(titleContains),
                                getRecipeIdsByIngredients(ingredientsContain),
-                               getRecipeIdsByDisallowedEquipment(equipmentDontContain))
+                               getRecipeIdsByDisallowedEquipment(equipmentDontContain),
+                               getRecipeIdsByPriceRange(minPrice, maxPrice))
             .filterNotNull()
             .reduceOrNull { acc, ids -> acc.intersect(ids) }
 
