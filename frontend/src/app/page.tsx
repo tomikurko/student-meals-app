@@ -14,11 +14,21 @@ import Link from 'next/link';
 export default function Home() {
   const [recipes, setRecipes] = useState([]);
   const [title, setTitle] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [ingredients, setIngredients] = useState([""]);
   const [equipment, setEquipment] = useState([""]);
 
   const onTitleChange = (e) => {
     setTitle(e.target.value);
+  };
+
+  const onMinPriceChange = (e) => {
+    setMinPrice(e.target.value);
+  };
+
+  const onMaxPriceChange = (e) => {
+    setMaxPrice(e.target.value);
   };
 
   const onIngredientsChange = (index, event) => {
@@ -43,7 +53,7 @@ export default function Home() {
 
   const onClickSearch = async (e) => {
     e.preventDefault();
-    const recipes = await getRecipes(title, ingredients, equipment);
+    const recipes = await getRecipes(title, minPrice, maxPrice, ingredients, equipment);
     setRecipes(recipes);
   };
 
@@ -59,6 +69,16 @@ export default function Home() {
 
           <form onSubmit={onClickSearch}>
             <TextField id="title-contains-search" label="Search by title" type="search" onChange={onTitleChange} />
+            <br/>
+            <br/>
+
+            <TextField id="minPrice" label="Search by minimum price (€)"
+             inputProps={{ inputMode: 'numeric', pattern: '^[0-9]{1,4}(?:\\.[0-9]{1,2})?$' }} onChange={onMinPriceChange} />
+             &nbsp;&nbsp;&nbsp;&nbsp;
+            <TextField id="maxPrice" label="Search by maximum price (€)"
+             inputProps={{ inputMode: 'numeric', pattern: '^[0-9]{1,4}(?:\\.[0-9]{1,2})?$' }} onChange={onMaxPriceChange} />
+
+            <br/>
 
             {ingredients.map((ingredient, index) => (
               <>
