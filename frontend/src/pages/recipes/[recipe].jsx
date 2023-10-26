@@ -47,6 +47,7 @@ export default function GetRecipe() {
                 <Stack spacing={5}>
                   <Stack spacing={1}>
                     <Typography variant="h5">{recipe.title}</Typography>
+                    <Typography variant="subtitle1" sx={{fontStyle: 'italic'}}>{"by " + (recipe.author ?? "Guest User")}</Typography>
                     <br/>
                     <Typography variant="subtitle1">{recipe.pricePerMeal} €/meal</Typography>
                   </Stack>

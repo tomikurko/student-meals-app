@@ -8,6 +8,7 @@ import Link from "next/link";
 
 export default function PostRecipe() {
   const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
   const [price, setPrice] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(undefined);
   const [amounts, setAmounts] = useState([""]);
@@ -17,6 +18,10 @@ export default function PostRecipe() {
 
   const onTitleChange = (e) => {
     setTitle(e.target.value);
+  };
+
+  const onAuthorChange = (e) => {
+    setAuthor(e.target.value);
   };
 
   const onPriceChange = (e) => {
@@ -66,7 +71,7 @@ export default function PostRecipe() {
     e.preventDefault();
     setSubmitSuccess(
       await postRecipe(
-        title, price, amounts, ingredients,
+        title, author, price, amounts, ingredients,
         equipment.filter((item) => item && item != ""),
         description))
   };
@@ -85,6 +90,10 @@ export default function PostRecipe() {
 
           <form onSubmit={onClickSubmit}>
             <TextField id="title" label="Title" type="text" required onChange={onTitleChange} />
+            <br/>
+            <br/>
+
+            <TextField id="author" label="Author" type="text" onChange={onAuthorChange} />
             <br/>
             <br/>
 

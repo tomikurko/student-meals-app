@@ -124,11 +124,14 @@ export default function Home() {
                   <Stack spacing={3} sx={{ textAlign: 'left' }}>
                     <Link href={"/recipes/" + recipe.id}><Typography variant="h5">{recipe.title}</Typography></Link>
                     <br/>
+
                     {recipe.pricePerMeal ?? "-"} €
                     &nbsp;– &nbsp;
                     {recipe.ingredients.length} ingredients
                     &nbsp;– &nbsp;
                     {recipe.equipment.length} equipment
+
+                    <Typography variant="subtitle1" sx={{fontStyle: 'italic'}}>{"by " + (recipe.author ?? "Guest User")}</Typography>
                   </Stack>
 
                 </CardContent>
