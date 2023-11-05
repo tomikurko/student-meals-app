@@ -1,10 +1,5 @@
 'use client'
 
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
-
 import React, { useState } from "react";
 import Button from '@mui/material/Button';
 import { getRecipes } from "../Services/RecipesService";
@@ -122,7 +117,7 @@ export default function Home() {
                 <CardContent>
 
                   <Stack spacing={3} sx={{ textAlign: 'left' }}>
-                    <Link href={"/recipes/" + recipe.id}><Typography variant="h5">{recipe.title}</Typography></Link>
+                    <Link href={{ pathname: '/recipe', query: { id: `${recipe.id}` } }}><Typography variant="h5">{recipe.title}</Typography></Link>
                     <br/>
 
                     {recipe.pricePerMeal ?? "-"} €

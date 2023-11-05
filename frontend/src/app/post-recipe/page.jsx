@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@mui/material";
-import { postRecipe } from "../Services/RecipesService";
+import { postRecipe } from "../../Services/RecipesService";
 import { Container, Stack, TextField, Typography } from "@mui/material";
 import Link from "next/link";
 

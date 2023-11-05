@@ -2,16 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import { getRecipe, removeRecipe } from "../../Services/RecipesService";
-import { Alert, Box, Button, Card, CardContent, Container, Divider, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Alert, Button, Card, CardContent, Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation";
 
 export default function GetRecipe() {
+  const searchParams = useSearchParams()
+  const recipeId = searchParams.get('id')
+
   const [recipe, setRecipe] = useState(undefined);
   const [removeSuccess, setRemoveSuccess] = useState(undefined);
-
-  const router = useRouter()
-  const recipeId = router.query.recipe
 
   useEffect(() => {
     recipeId && (async () => setRecipe(await getRecipe(recipeId)))();
