@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=${POSTGRES_DB}'
+      - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD}'
+      - 'POSTGRES_USER=${POSTGRES_USER}'
+    ports:
+      - '${POSTGRES_HOST_PORT}:5432'
+    networks:
+      - backend
+
+  server:
+    image: 'public.ecr.aws/o6b6o8s4/studentmeals:latest'
+    ports:
+      - '8080:8080'
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          memory: 650M
+
+networks:
+  backend:
