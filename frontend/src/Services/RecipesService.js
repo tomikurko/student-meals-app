@@ -40,13 +40,14 @@ const getRecipe = async (id) => {
   }
 };
 
-const postRecipe = async (title, author, pricePerMeal, amounts, ingredients, equipment, description) => {
+const postRecipe = async (title, author, pricePerMeal, imgUrl, amounts, ingredients, equipment, description) => {
   try {
     const response = await axiosInstance.post(path + "/recipes", {
       title,
       author: author && author != "" ? author : null,
       pricePerMeal: parseFloat(pricePerMeal),
       description,
+      imgUrl,
       ingredients: ingredients.map((ingredient, index) => ({ amount: amounts[index], description: ingredient })),
       equipment: equipment.map((equipment) => ({ name: equipment }))
     });

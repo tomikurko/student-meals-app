@@ -1,10 +1,13 @@
 'use client'
 
+import AWS from "aws-sdk";
+import Resizer from "react-image-file-resizer";
 import React, { useState } from "react";
 import { Button } from "@mui/material";
 import { postRecipe } from "../../Services/RecipesService";
-import { Container, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Container, Stack, TextField, Typography } from "@mui/material";
 import Link from "next/link";
+import { v4 as uuidv4 } from "uuid";
 
 export default function PostRecipe() {
   const [title, setTitle] = useState("");
@@ -15,6 +18,8 @@ export default function PostRecipe() {
   const [ingredients, setIngredients] = useState([""]);
   const [equipment, setEquipment] = useState([""]);
   const [description, setDescription] = useState("");
+  const [imgFile, setImgFile] = useState(null);
+  const [imgFileState, setImgFileState] = useState("no_file");
 
   const onTitleChange = (e) => {
     setTitle(e.target.value);
@@ -69,11 +74,99 @@ export default function PostRecipe() {
 
   const onClickSubmit = async (e) => {
     e.preventDefault();
-    setSubmitSuccess(
-      await postRecipe(
-        title, author, price, amounts, ingredients,
-        equipment.filter((item) => item && item != ""),
-        description))
+
+    try {
+      let url = null;
+
+      if (imgFileState == "file_selected") {
+        url = await uploadImgFile(imgFile);
+      }
+
+      setSubmitSuccess(
+        await postRecipe(
+          title, author, price, url, amounts, ingredients,
+          equipment.filter((item) => item && item != ""),
+          description))
+
+    } catch (e) {
+      console.log(e);
+      setSubmitSuccess(false);
+    }
+  };
+
+  const resizeImage = (file) =>
+    new Promise((resolve) => {
+      Resizer.imageFileResizer(
+        file,
+        800,
+        800,
+        "WEBP",
+        100,
+        0,
+        (uri) => {
+          resolve(uri);
+        },
+        "file"
+      );
+    });
+
+  const uploadImgFile = async (file) => {
+    const S3_BUCKET = "img.studentmeals.site";
+    const REGION = "eu-north-1";
+
+    AWS.config.update({
+      accessKeyId: "studentmeals-secret",
+      secretAccessKey: "studentmeals-secret",
+    });
+    const s3 = new AWS.S3({
+      params: { Bucket: S3_BUCKET },
+      region: REGION,
+    });
+
+    const filename = uuidv4() + ".webp";
+    const params = {
+      Bucket: S3_BUCKET,
+      Key: filename,
+      Body: file,
+    };
+
+    try {
+      const data = await s3
+        .putObject(params)
+        .on("httpUploadProgress", (evt) => {
+          console.log(
+            "Uploading " + parseInt((evt.loaded * 100) / evt.total) + "%"
+          );
+        })
+        .promise();
+
+      const url = `https://s3.eu-north-1.amazonaws.com/img.studentmeals.site/${filename}`;
+      console.log(`Image uploaded successfully to ${url}`);
+
+      return Promise.resolve(url);
+    } catch (e) {
+      console.error(e);
+      return Promise.reject(new Error("Failed to upload image"));
+    }
+  };
+
+  const handleImgFileChange = async (e) => {
+    try {
+      const file = await resizeImage(e.target.files[0]);
+
+      if (file.size > 1024 * 1024) {
+        setImgFile(null);
+        setImgFileState("file_too_big");
+      } else {
+        setImgFile(file);
+        setImgFileState("file_selected");
+      }
+    } catch (e) {
+      console.error(e);
+
+      setImgFile(null);
+      setImgFileState("file_invalid");
+    }
   };
 
   return (
@@ -152,6 +245,25 @@ export default function PostRecipe() {
             <br/>
 
             <TextField id="description" label="Description" multiline rows={10} sx={{ width: '60ch' }} onChange={onDescriptionChange} />
+            <br/>
+            <br/>
+            <br/>
+
+            <input type="file" onChange={handleImgFileChange} />
+            {imgFileState === "file_too_big" && (
+              <>
+                <br/>
+                <br/>
+                <Alert severity="error">Resized image is bigger than 1 MB in size! Please try another image.</Alert>
+              </>
+            )}
+            {imgFileState === "file_invalid" && (
+              <>
+                <br/>
+                <br/>
+                <Alert severity="error">Invalid image file! Please try another image.</Alert>
+              </>
+            )}
             <br/>
             <br/>
             <br/>

@@ -54,6 +54,9 @@ export default function GetRecipe() {
                         <Typography variant="subtitle1">{recipe.pricePerMeal} €/meal</Typography>
                       </>
                     )}
+                    {recipe.imgUrl && (
+                      <img src={recipe.imgUrl} alt="Image of the meal" />
+                    )}
                   </Stack>
 
                   <Stack direction="row" spacing={3}>
