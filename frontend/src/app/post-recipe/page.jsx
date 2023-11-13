@@ -1,13 +1,79 @@
 'use client'
 
 import AWS from "aws-sdk";
-import Resizer from "react-image-file-resizer";
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Alert, Button, Card, Stack, Table, TableBody, TableCell, TableContainer,
+         TableHead, TableRow, TextField, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
+import Image from 'mui-image';
 import React, { useState } from "react";
-import { Button } from "@mui/material";
-import { postRecipe } from "../../Services/RecipesService";
-import { Alert, Container, Stack, TextField, Typography } from "@mui/material";
-import Link from "next/link";
+import Resizer from "react-image-file-resizer";
 import { v4 as uuidv4 } from "uuid";
+
+import { postRecipe } from "../../Services/RecipesService";
+
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  backgroundColor: '#fffefb',
+}));
+
+const resizeImage = (file) =>
+  new Promise((resolve) => {
+    Resizer.imageFileResizer(
+      file,
+      800,
+      800,
+      "WEBP",
+      100,
+      0,
+      (uri) => {
+        resolve(uri);
+      },
+      "file"
+    );
+  });
+
+const uploadImgFile = async (file) => {
+  const S3_BUCKET = "img.studentmeals.site";
+  const REGION = "eu-north-1";
+
+  AWS.config.update({
+    accessKeyId: "studentmeals-secret",
+    secretAccessKey: "studentmeals-secret",
+  });
+  const s3 = new AWS.S3({
+    params: { Bucket: S3_BUCKET },
+    region: REGION,
+  });
+
+  const filename = uuidv4() + ".webp";
+  const params = {
+    Bucket: S3_BUCKET,
+    Key: filename,
+    Body: file,
+  };
+
+  try {
+    const data = await s3
+      .putObject(params)
+      .on("httpUploadProgress", (evt) => {
+        console.log(
+          "Uploading " + parseInt((evt.loaded * 100) / evt.total) + "%"
+        );
+      })
+      .promise();
+
+    const url = `https://s3.eu-north-1.amazonaws.com/img.studentmeals.site/${filename}`;
+    console.log(`Image uploaded successfully to ${url}`);
+
+    return Promise.resolve(url);
+  } catch (e) {
+    console.error(e);
+    return Promise.reject(new Error("Failed to upload image"));
+  }
+};
+
 
 export default function PostRecipe() {
   const [title, setTitle] = useState("");
@@ -43,16 +109,7 @@ export default function PostRecipe() {
     setIngredients(ingredients);
   };
 
-  const onEquipmentChange = (index, event) => {
-    equipment[index] = event.target.value;
-    setEquipment(equipment);
-  };
-
-  const onDescriptionChange = (e) => {
-    setDescription(e.target.value);
-  };
-
-  const onClickAddIngredient = async (e) => {
+  const onClickAddIngredient = (e) => {
     e.preventDefault();
     setAmounts(amounts.concat([""]));
     setIngredients(ingredients.concat([""]));
@@ -63,13 +120,22 @@ export default function PostRecipe() {
     setIngredients(ingredients.slice(0, index).concat(ingredients.slice(index+1)));
   };
 
-  const onClickAddEquipment = async (e) => {
+  const onEquipmentChange = (index, event) => {
+    equipment[index] = event.target.value;
+    setEquipment(equipment);
+  };
+
+  const onClickAddEquipment = (e) => {
     e.preventDefault();
     setEquipment(equipment.concat([""]));
   };
 
   const onClickRemoveEquipment = (index) => {
     setEquipment(equipment.slice(0, index).concat(equipment.slice(index+1)));
+  };
+
+  const onDescriptionChange = (e) => {
+    setDescription(e.target.value);
   };
 
   const onClickSubmit = async (e) => {
@@ -94,63 +160,7 @@ export default function PostRecipe() {
     }
   };
 
-  const resizeImage = (file) =>
-    new Promise((resolve) => {
-      Resizer.imageFileResizer(
-        file,
-        800,
-        800,
-        "WEBP",
-        100,
-        0,
-        (uri) => {
-          resolve(uri);
-        },
-        "file"
-      );
-    });
-
-  const uploadImgFile = async (file) => {
-    const S3_BUCKET = "img.studentmeals.site";
-    const REGION = "eu-north-1";
-
-    AWS.config.update({
-      accessKeyId: "studentmeals-secret",
-      secretAccessKey: "studentmeals-secret",
-    });
-    const s3 = new AWS.S3({
-      params: { Bucket: S3_BUCKET },
-      region: REGION,
-    });
-
-    const filename = uuidv4() + ".webp";
-    const params = {
-      Bucket: S3_BUCKET,
-      Key: filename,
-      Body: file,
-    };
-
-    try {
-      const data = await s3
-        .putObject(params)
-        .on("httpUploadProgress", (evt) => {
-          console.log(
-            "Uploading " + parseInt((evt.loaded * 100) / evt.total) + "%"
-          );
-        })
-        .promise();
-
-      const url = `https://s3.eu-north-1.amazonaws.com/img.studentmeals.site/${filename}`;
-      console.log(`Image uploaded successfully to ${url}`);
-
-      return Promise.resolve(url);
-    } catch (e) {
-      console.error(e);
-      return Promise.reject(new Error("Failed to upload image"));
-    }
-  };
-
-  const handleImgFileChange = async (e) => {
+  const onImgFileChange = async (e) => {
     try {
       const file = await resizeImage(e.target.files[0]);
 
@@ -169,115 +179,155 @@ export default function PostRecipe() {
     }
   };
 
+
   return (
     <>
-      <Container sx={{display: 'flex', justifyContent: 'center'}}>
-        <Stack spacing={2} sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+      <Stack spacing={2} justifyContent="center" alignItems="center">
+        <Typography variant="h1">Post a new recipe</Typography>
+        <br/>
 
-          <Typography variant="h1">Student Meals</Typography>
+        {imgFile && (
+          <Image src={URL.createObjectURL(imgFile)} width="100%" alt="Image of the meal" />
+        )}
 
-          <Link href="/"><Typography variant="h2">Search recipes</Typography></Link>
+        {imgFileState === "file_too_big" && (
+          <>
+            <Alert severity="error">Resized image is bigger than 1 MB in size! Please try another image.</Alert>
+          </>
+        )}
+        {imgFileState === "file_invalid" && (
+          <>
+            <Alert severity="error">Invalid image file! Please try another image.</Alert>
+          </>
+        )}
 
-          <Typography variant="h2">Post recipes</Typography>
+        <Button variant="contained" component="label">
+          Select image
+          <input type="file" hidden onChange={onImgFileChange} />
+        </Button>
+        <br/>
+        <br/>
+
+        <form onSubmit={onClickSubmit}>
+          <TextField id="title" label="Title" type="text" required sx={{ minWidth: '50%' }} onChange={onTitleChange} />
+          <br/>
           <br/>
 
-          <form onSubmit={onClickSubmit}>
-            <TextField id="title" label="Title" type="text" required onChange={onTitleChange} />
-            <br/>
-            <br/>
+          <TextField id="author" label="Author" type="text" sx={{ minWidth: '50%' }} onChange={onAuthorChange} />
+          <br/>
+          <br/>
 
-            <TextField id="author" label="Author" type="text" onChange={onAuthorChange} />
-            <br/>
-            <br/>
+          <TextField id="price" label="Price per meal (€)"
+            inputProps={{ inputMode: 'numeric', pattern: '^[0-9]{1,4}(?:\\.[0-9]{1,2})?$' }}
+            sx={{ minWidth: '50%' }} onChange={onPriceChange} />
+          <br/>
+          <br/>
+          <br/>
 
-            <TextField id="price" label="Price per meal (€)"
-             inputProps={{ inputMode: 'numeric', pattern: '^[0-9]{1,4}(?:\\.[0-9]{1,2})?$' }} onChange={onPriceChange} />
-            <br/>
+          <TableContainer component={Card} sx={{ width: '100%' }}>
+            <Table>
+              <colgroup>
+                <col width="30%" />
+                <col width="60%" />
+                <col width="10%" />
+              </colgroup>
 
-            {ingredients.map((ingredient, index) => (
-              <>
-                <br/>
-                <br/>
-                <TextField id="amounts-{index}"
-                label="Amount" type="text" key={"A_" + Math.random()} onChange={(e) => onAmountsChange(index, e)}
-                defaultValue={amounts[index]} />
+              <TableHead>
+                <StyledTableRow>
+                  <TableCell colSpan={3}>Ingredients</TableCell>
+                </StyledTableRow>
+              </TableHead>
 
-                &nbsp;&nbsp;&nbsp;&nbsp;
+              <TableBody>
+                {ingredients.map((ingredient, index) => (
+                  <StyledTableRow key={index}>
+                    <TableCell component="th" scope="row">
+                      <TextField id="amounts-{index}"
+                       fullWidth variant="standard" size="small"
+                       label="Amount" type="text" key={"A_" + Math.random()}
+                       onChange={(e) => onAmountsChange(index, e)}
+                       defaultValue={amounts[index]} />
+                    </TableCell>
+                    <TableCell>
+                      <TextField id="ingredients-{index}"
+                       fullWidth variant="standard" size="small"
+                       label="Ingredient" type="text" key={"I_" + Math.random()}
+                       onChange={(e) => onIngredientsChange(index, e)}
+                       defaultValue={ingredient}
+                       required />
+                    </TableCell>
+                    <TableCell>
+                      {index > 0 || ingredients.length > 1
+                      ? <Button variant="outlined" size="small" onClick={() => onClickRemoveIngredient(index)}><DeleteIcon /></Button>
+                      : <Button variant="outlined" size="small" disabled><DeleteIcon /></Button>
+                      }
+                    </TableCell>
+                  </StyledTableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <br/>
+          <Button variant="outlined" size="small" onClick={onClickAddIngredient}><AddIcon /></Button>
+          <br/>
+          <br/>
+          <br/>
 
-                <TextField id="ingredients-{index}"
-                label="Ingredient" type="text" key={"I_" + Math.random()} required onChange={(e) => onIngredientsChange(index, e)}
-                defaultValue={ingredient} />
+          <TableContainer component={Card}>
+            <Table>
+              <colgroup>
+                <col width="90%" />
+                <col width="10%" />
+              </colgroup>
 
-                &nbsp;&nbsp;&nbsp;&nbsp;
+              <TableHead>
+                <StyledTableRow>
+                  <TableCell colSpan={2}>Equipment</TableCell>
+                </StyledTableRow>
+              </TableHead>
 
-                {index > 0
-                 ? <Button variant="contained" onClick={() => onClickRemoveIngredient(index)}>-</Button>
-                 : <Button variant="contained" disabled>-</Button>
-                 }
-              </>
-            ))}
-            <br/>
-            <br/>
-            <Button variant="contained" onClick={onClickAddIngredient}>+</Button>
-            <br/>
+              <TableBody>
+                {equipment.map((equip, index) => (
+                  <StyledTableRow key={index}>
+                    <TableCell component="th" scope="row">
+                      <TextField id="equipment-{index}"
+                       fullWidth variant="standard" size="small"
+                       label="Equipment" type="text" key={"E_" + Math.random()}
+                       onChange={(e) => onEquipmentChange(index, e)}
+                       defaultValue={equip} />
+                    </TableCell>
+                    <TableCell>
+                      {index > 0 || equipment.length > 1
+                      ? <Button variant="outlined" size="small" onClick={() => onClickRemoveEquipment(index)}><DeleteIcon /></Button>
+                      : <Button variant="outlined" size="small" disabled><DeleteIcon /></Button>
+                      }
+                    </TableCell>
+                  </StyledTableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <br/>
+          <Button variant="outlined" size="small" onClick={onClickAddEquipment}><AddIcon /></Button>
+          <br/>
+          <br/>
+          <br/>
 
-            {equipment.map((equipment, index) => (
-              <>
-                <br/>
-                <br/>
-                <TextField id="equipment-{index}"
-                label="Equipment" type="text" key={"E_" + Math.random()} onChange={(e) => onEquipmentChange(index, e)}
-                defaultValue={equipment} />
+          <TextField id="description" label="Description" multiline rows={10} sx={{ width: '100%' }}
+           onChange={onDescriptionChange} />
+          <br/>
+          <br/>
+          <br/>
 
-                &nbsp;&nbsp;&nbsp;&nbsp;
+          <Button variant="contained" type="submit">Submit</Button>
+          <br/>
+          <br/>
 
-                {index > 0
-                 ? <Button variant="contained" onClick={() => onClickRemoveEquipment(index)}>-</Button>
-                 : <Button variant="contained" disabled>-</Button>
-                 }
-              </>
-            ))}
-            <br/>
-            <br/>
-            <Button variant="contained" onClick={onClickAddEquipment}>+</Button>
-            <br/>
-            <br/>
-            <br/>
+          {submitSuccess && <Alert severity="success">Recipe posted successfully.</Alert>}
+          {submitSuccess === false && <Alert severity="error">Failed to post the recipe!</Alert>}
+        </form>
 
-            <TextField id="description" label="Description" multiline rows={10} sx={{ width: '60ch' }} onChange={onDescriptionChange} />
-            <br/>
-            <br/>
-            <br/>
-
-            <input type="file" onChange={handleImgFileChange} />
-            {imgFileState === "file_too_big" && (
-              <>
-                <br/>
-                <br/>
-                <Alert severity="error">Resized image is bigger than 1 MB in size! Please try another image.</Alert>
-              </>
-            )}
-            {imgFileState === "file_invalid" && (
-              <>
-                <br/>
-                <br/>
-                <Alert severity="error">Invalid image file! Please try another image.</Alert>
-              </>
-            )}
-            <br/>
-            <br/>
-            <br/>
-
-            <Button variant="contained" type="submit">Submit</Button>
-            <br/>
-            <br/>
-
-            {submitSuccess && <Typography variant="body">Recipe posted successfully.</Typography>}
-            {submitSuccess === false && <Typography variant="body">ERROR: Failed to submit the recipe!</Typography>}
-          </form>
-
-        </Stack>
-      </Container>
+      </Stack>
     </>
   )
 }

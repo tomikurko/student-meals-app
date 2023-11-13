@@ -70,7 +70,7 @@ class RecipesController(private val create: DSLContext) {
             equipmentContainOneOf.map { getRecipeIdsByEquipment(it) }.reduce { acc, ids -> acc.union(ids) }
 
         fun getRecipeIdsByDisallowedEquipment(equipmentDontContain: List<String>?): Set<Int>? =
-            if (equipmentDontContain.isNullOrEmpty())
+            if (equipmentDontContain.isNullOrEmpty() || equipmentDontContain.filter { it.isNotBlank() }.isEmpty())
                 null
             else
                 getAllRecipeIds().minus(

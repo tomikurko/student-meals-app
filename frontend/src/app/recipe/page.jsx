@@ -1,142 +1,170 @@
 'use client'
 
-import React, { useEffect, useState } from "react";
-import { getRecipe, removeRecipe } from "../../Services/RecipesService";
-import { Alert, Button, Card, CardContent, Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
-import Link from "next/link";
+import { Alert, Card, CardContent, Stack, Table, TableBody, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+import { styled } from '@mui/material/styles';
+import Image from 'mui-image';
 import { useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+
+import RecipeMenu from './RecipeMenu';
+import RemoveConfirmationDialog from './RemoveConfirmationDialog';
+import { getRecipe, removeRecipe } from "../../Services/RecipesService";
+
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: '#ffa726',
+    color: theme.palette.common.white,
+  },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  backgroundColor: '#fffcf8',
+}));
+
 
 export default function GetRecipe() {
   const searchParams = useSearchParams()
   const recipeId = searchParams.get('id')
 
   const [recipe, setRecipe] = useState(undefined);
+  const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
   const [removeSuccess, setRemoveSuccess] = useState(undefined);
 
   useEffect(() => {
     recipeId && (async () => setRecipe(await getRecipe(recipeId)))();
   }, [recipeId]);
 
-  const onClickRemove = async () => {
+  const onConfirmRemove = async () => {
+    setShowRemoveConfirmation(true);
+  };
+
+  const onCancelRemove = async () => {
+    setShowRemoveConfirmation(false);
+  };
+
+  const onRemove = async () => {
+    setShowRemoveConfirmation(false);
+
     setRemoveSuccess(
       await removeRecipe(recipe.id));
   };
 
+
   return (
     <>
+      <Stack spacing={5} justifyContent="center" alignItems="stretch">
 
-      <Container sx={{display: 'flex', justifyContent: 'center'}}>
-        <Stack spacing={5} sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-
-        <Typography variant="h1">Student Meals</Typography>
-
-        <Link href="/"><Typography variant="h2">Search recipes</Typography></Link>
-
-        <Link href="/post-recipe"><Typography variant="h2">Post recipes</Typography></Link>
-
-        {!recipe && (
+        {recipe === null && (
           <>
-            <Typography variant="body">ERROR: Recipe not found!</Typography>
+            <Alert severity="error">Recipe not found!</Alert>
           </>
         )}
         {recipe && (
           <>
-            <Card sx={{ maxWidth: 700 }}>
-              <CardContent>
 
-                <Stack spacing={5}>
-                  <Stack spacing={1}>
-                    <Typography variant="h5">{recipe.title}</Typography>
-                    <Typography variant="subtitle1" sx={{fontStyle: 'italic'}}>{"by " + (recipe.author ?? "Guest User")}</Typography>
-                    {recipe.pricePerMeal && (
-                      <>
-                        <br/>
-                        <Typography variant="subtitle1">{recipe.pricePerMeal} €/meal</Typography>
-                      </>
-                    )}
-                    {recipe.imgUrl && (
-                      <img src={recipe.imgUrl} alt="Image of the meal" />
-                    )}
-                  </Stack>
+            <RemoveConfirmationDialog isOpen={showRemoveConfirmation} onRemove={onRemove} onCancel={onCancelRemove} />
 
-                  <Stack direction="row" spacing={3}>
-                    <Stack spacing={5}>
+            <Stack spacing={5}>
+              <Stack spacing={1}>
 
-                      <TableContainer component={Card}>
-                        <Table sx={{ minWidth: 300 }}>
-                          <colgroup>
-                            <col width="35%" />
-                            <col width="65%" />
-                          </colgroup>
+                {removeSuccess && (
+                  <Alert severity="success">Recipe removed successfully.</Alert>
+                )}
+                {removeSuccess === false && (
+                  <Alert severity="error">Failed to remove the recipe!</Alert>
+                )}
 
-                          <TableHead>
-                            <TableRow>
-                              <TableCell>Amount</TableCell>
-                              <TableCell>Ingredient</TableCell>
-                            </TableRow>
-                          </TableHead>
-
-                          <TableBody>
-                            {recipe.ingredients.map((ingredient) => (
-                              <TableRow key={ingredient.id}>
-                                <TableCell component="th" scope="row">{ingredient.amount}</TableCell>
-                                <TableCell>{ingredient.description}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-
-                      <TableContainer component={Card}>
-                        <Table sx={{ minWidth: 300 }}>
-                          <TableHead>
-                            <TableRow>
-                              <TableCell>Equipment</TableCell>
-                            </TableRow>
-                          </TableHead>
-
-                          <TableBody>
-                            {recipe.equipment.map((equipment) => (
-                              <TableRow key={equipment.id}>
-                                <TableCell component="th" scope="row">{equipment.name}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </Stack>
-
-                    <Card sx={{ minWidth: 340 }}>
-                      <CardContent>
-                        <div className="multiline">
-                          <Typography variant="body1">{recipe.description}</Typography>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                  </Stack>
-
-                  <hr />
-
-                  <Stack direction="row" justifyContent="center" spacing={3}>
-                    <Button variant="contained" onClick={onClickRemove}>Remove</Button>
-                  </Stack>
-
-                  {removeSuccess && (
-                    <Alert severity="success">Recipe removed successfully</Alert>
-                  )}
-                  {removeSuccess === false && (
-                    <Alert severity="error">Failed to remove the recipe!</Alert>
-                  )}
+                <Stack direction="row" justifyContent="space-between">
+                  <RecipeMenu sx={{ visibility: 'hidden' }}/>
+                  <Typography variant="h1" display="inline" >{recipe.title}</Typography>
+                  <RecipeMenu onRemove={onConfirmRemove} />
                 </Stack>
 
-              </CardContent>
-            </Card>
+                <Typography variant="subtitle1" sx={{fontStyle: 'italic'}}>{"by " + (recipe.author ?? "Guest User")}</Typography>
+
+                {recipe.pricePerMeal && (
+                  <>
+                    <br/>
+                    <Typography variant="body2" display="inline"
+                    sx={{ alignSelf: 'center', background: '#fff3e0', borderRadius: '25px', border: '1.0px solid #eeeeee', px: 2.0, py: 0.7}}
+                    >
+                      {recipe.pricePerMeal} €/meal
+                    </Typography>
+                  </>
+                )}
+
+                {recipe.imgUrl && (
+                  <>
+                    <br/>
+                    <Image src={recipe.imgUrl} alt="Image of the meal" sx={{ boxShadow: 2 }}/>
+                  </>
+                )}
+              </Stack>
+
+              <Stack direction="row" spacing={3}>
+                <Stack spacing={5} sx={{ width: '40%' }}>
+
+                  <TableContainer component={Card} sx={{ borderRadius: '0px' }}>
+                    <Table>
+                      <colgroup>
+                        <col width="35%" />
+                        <col width="65%" />
+                      </colgroup>
+
+                      <TableHead>
+                        <TableRow>
+                          <StyledTableCell>Amount</StyledTableCell>
+                          <StyledTableCell>Ingredient</StyledTableCell>
+                        </TableRow>
+                      </TableHead>
+
+                      <TableBody>
+                        {recipe.ingredients.map((ingredient) => (
+                          <StyledTableRow key={ingredient.id}>
+                            <StyledTableCell component="th" scope="row">{ingredient.amount}</StyledTableCell>
+                            <StyledTableCell>{ingredient.description}</StyledTableCell>
+                          </StyledTableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+
+                  <TableContainer component={Card} sx={{ borderRadius: '0px' }}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <StyledTableCell>Equipment</StyledTableCell>
+                        </TableRow>
+                      </TableHead>
+
+                      <TableBody>
+                        {recipe.equipment.map((equipment) => (
+                          <StyledTableRow key={equipment.id}>
+                            <StyledTableCell component="th" scope="row">{equipment.name}</StyledTableCell>
+                          </StyledTableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Stack>
+
+                <Card sx={{ display: 'flex', width: '60%', background: '#fffcf8', borderRadius: '0px' }}>
+                  <CardContent>
+                    <div className="multiline">
+                      <Typography variant="body1">{recipe.description}</Typography>
+                    </div>
+                  </CardContent>
+                </Card>
+
+              </Stack>
+            </Stack>
+
           </>
         )}
-        </Stack>
-      </Container>
 
+      </Stack>
     </>
   )
 }

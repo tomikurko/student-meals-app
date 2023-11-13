@@ -28,13 +28,13 @@ body {
 
 body
 {
-    background-color: #e7eef5;
-    text-align: center;
+  background-color: #fff9f0;
+  text-align: center;
 }
 
 form
 {
-    display: inline-block;
+  display: inline-block;
 }
 
 .multiline {
