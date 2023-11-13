@@ -7,7 +7,7 @@ const axiosInstance = axios.create({
   },
 });
 //const path = "http://localhost:8080/api/v1";
-const path = "http://ec2-51-20-138-253.eu-north-1.compute.amazonaws.com:8080/api/v1";
+const path = "http://ec2-16-16-187-196.eu-north-1.compute.amazonaws.com:8080/api/v1";
 
 const getRecipes = async (title, minPrice, maxPrice, ingredients, disallowedEquipment) => {
   try {
