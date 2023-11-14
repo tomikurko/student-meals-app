@@ -4,7 +4,7 @@ import { Alert, Card, CardContent, Stack, Table, TableBody, TableContainer, Tabl
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import { styled } from '@mui/material/styles';
 import Image from 'mui-image';
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 import RecipeMenu from './RecipeMenu';
@@ -25,6 +25,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 
 export default function GetRecipe() {
+  const router = useRouter();
   const searchParams = useSearchParams()
   const recipeId = searchParams.get('id')
 
@@ -47,8 +48,14 @@ export default function GetRecipe() {
   const onRemove = async () => {
     setShowRemoveConfirmation(false);
 
-    setRemoveSuccess(
-      await removeRecipe(recipe.id));
+    const success = await removeRecipe(recipe.id);
+    setRemoveSuccess(success);
+
+    if (success) {
+      setTimeout(() => {
+        router.replace('/');
+      }, 1500);
+    }
   };
 
 

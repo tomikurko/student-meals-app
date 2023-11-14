@@ -116,9 +116,11 @@ class RecipesController(private val create: DSLContext) {
               ?.let { it.toModel().copy(ingredients = getIngredients(id), equipment = getEquipment(id)) }
               ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "recipe not found")
 
+    data class PostResult(val id: Int)
+
     @PostMapping("/recipes", consumes = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
-    fun postOne(@RequestBody recipe: Recipe) {
+    fun postOne(@RequestBody recipe: Recipe): PostResult {
         val recipeRecord = create
             .insertInto(RECIPES, RECIPES.TITLE, RECIPES.AUTHOR, RECIPES.DESCRIPTION, RECIPES.PRICE_PER_MEAL, RECIPES.IMG_URL)
             .values(recipe.title, recipe.author, recipe.description, recipe.pricePerMeal, recipe.imgUrl)
@@ -151,6 +153,8 @@ class RecipesController(private val create: DSLContext) {
                 throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "failed to insert one or more equipment to database")
             }
+
+            return PostResult(recipeId)
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                 "failed to insert a recipe to database")

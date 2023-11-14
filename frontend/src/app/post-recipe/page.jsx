@@ -7,6 +7,7 @@ import { Alert, Button, Card, Stack, Table, TableBody, TableCell, TableContainer
          TableHead, TableRow, TextField, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import Image from 'mui-image';
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import Resizer from "react-image-file-resizer";
 import { v4 as uuidv4 } from "uuid";
@@ -76,6 +77,8 @@ const uploadImgFile = async (file) => {
 
 
 export default function PostRecipe() {
+  const router = useRouter();
+
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [price, setPrice] = useState("");
@@ -148,12 +151,18 @@ export default function PostRecipe() {
         url = await uploadImgFile(imgFile);
       }
 
-      setSubmitSuccess(
-        await postRecipe(
-          title, author, price, url, amounts, ingredients,
-          equipment.filter((item) => item && item != ""),
-          description))
+      const recipeId = await postRecipe(
+        title, author, price, url, amounts, ingredients,
+        equipment.filter((item) => item && item != ""),
+        description);
+      const success = recipeId != null;
+      setSubmitSuccess(success);
 
+      if (success) {
+        setTimeout(() => {
+          router.replace(`/recipe/?id=${recipeId}`);
+        }, 1500);
+      }
     } catch (e) {
       console.log(e);
       setSubmitSuccess(false);

@@ -52,10 +52,10 @@ const postRecipe = async (title, author, pricePerMeal, imgUrl, amounts, ingredie
       equipment: equipment.map((equipment) => ({ name: equipment }))
     });
 
-    return response.status === HttpStatusCode.Created;
+    return response.status === HttpStatusCode.Created ? response.data.id : null;
   } catch (e) {
     console.log(e);
-    return false;
+    return null;
   }
 };
 
