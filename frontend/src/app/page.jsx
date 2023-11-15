@@ -10,7 +10,8 @@ import { Alert, Box, Button, Card, CardContent, Container, IconButton, InputAdor
          TableHead, TableRow, TextField, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import Image from 'mui-image';
-import React, { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 import { getRecipes } from "../Services/RecipesService";
 
@@ -34,12 +35,24 @@ const priceRangeMarks = () => {
 
 
 export default function Home() {
+  const router = useRouter();
+  const searchParams = useSearchParams()
+  const qTitle = searchParams.get('title');
+  const qMinPrice = searchParams.get('minPrice');
+  const qMaxPrice = searchParams.get('maxPrice');
+  const qIngredients = searchParams.getAll('ingredients');
+  const qEquipment = searchParams.getAll('equipment');
+
   const [recipes, setRecipes] = useState(null);
-  const [title, setTitle] = useState("");
-  const [priceRange, setPriceRange] = useState([MIN_PRICE, MAX_PRICE]);
-  const [ingredients, setIngredients] = useState([""]);
-  const [equipment, setEquipment] = useState([""]);
-  const [criteriaExpanded, setCriteriaExpanded] = useState(false);
+  const [title, setTitle] = useState(qTitle ?? "");
+  const [priceRange, setPriceRange] = useState([qMinPrice ?? MIN_PRICE, qMaxPrice ?? MAX_PRICE]);
+  const [ingredients, setIngredients] = useState(qIngredients.length === 0 ? [""] : qIngredients);
+  const [equipment, setEquipment] = useState(qEquipment.length === 0 ? [""] : qEquipment);
+  const [criteriaExpanded, setCriteriaExpanded] = useState(qMinPrice || qMaxPrice || qIngredients.length > 0 || qEquipment.length > 0);
+
+  useEffect(() => {
+    (async () => setRecipes(await getRecipes(qTitle, qMinPrice, qMaxPrice, qIngredients, qEquipment)))();
+  }, [qTitle, qMinPrice, qMaxPrice, JSON.stringify(qIngredients), JSON.stringify(qEquipment)]);
 
   const onTitleChange = (e) => {
     setTitle(e.target.value);
@@ -76,11 +89,20 @@ export default function Home() {
   const onClickSearch = async (e) => {
     e.preventDefault();
 
-    const minPrice = priceRange[0] <= MIN_PRICE ? null : priceRange[0];
-    const maxPrice = priceRange[1] >= MAX_PRICE ? null : priceRange[1];
+    const minPrice = priceRange[0] <= MIN_PRICE ? "" : priceRange[0];
+    const maxPrice = priceRange[1] >= MAX_PRICE ? "" : priceRange[1];
 
-    const recipes = await getRecipes(title, minPrice, maxPrice, ingredients, equipment);
-    setRecipes(recipes);
+    const searchParams = [
+      ["title", title],
+      ["minPrice", minPrice],
+      ["maxPrice", maxPrice],
+      ...ingredients.map((ing) => ["ingredients", ing]),
+      ...equipment.map((equip) => ["equipment", equip])
+    ].map((param) => param[1] === "" ? "" : `${param[0]}=${param[1]}`)
+     .filter((param) => param !== "")
+     .join("&");
+
+    router.push(`/?${searchParams}`);
   };
 
 
@@ -96,6 +118,7 @@ export default function Home() {
             <br/>
             <TextField id="title-contains-search" label="Search by title" type="search" sx={{ width: '50%' }}
              onChange={onTitleChange}
+             defaultValue={title}
              InputProps={{
                startAdornment: (
                  <InputAdornment position="start">

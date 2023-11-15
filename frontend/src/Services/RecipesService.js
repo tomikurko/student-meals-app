@@ -26,6 +26,7 @@ const getRecipes = async (title, minPrice, maxPrice, ingredients, disallowedEqui
     });
     return response.data;
   } catch (e) {
+    console.log(e);
     return [];
   }
 };
