@@ -99,11 +99,13 @@ class RecipesController(private val create: DSLContext) {
         return (if (recipeIds == null)
             create
                 .selectFrom(RECIPES)
+                .orderBy(RECIPES.ID.desc())
                 .fetch()
         else
             create
                 .selectFrom(RECIPES)
                 .where(RECIPES.ID.`in`(recipeIds))
+                .orderBy(RECIPES.ID.desc())
                 .fetch()
         ).map { it.toModel().let { it.copy(ingredients = getIngredients(it.id), equipment = getEquipment(it.id)) } }
     }
