@@ -1,5 +1,4 @@
-import { Typography } from "@mui/material"
-import Link from "next/link";
+import { Link, Typography } from "@mui/material"
 
 
 export default function AboutUs() {
