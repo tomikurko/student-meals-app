@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardContent, Container, Stack, ThemeProvider, Typography, createTheme } from "@mui/material";
+import { Card, CardContent, Container, Link, Stack, ThemeProvider, Typography, createTheme } from "@mui/material";
 import NextLink from 'next/link';
 import { forwardRef } from 'react';
 
@@ -61,6 +61,12 @@ export default function PageFrame({
           </Card>
 
           <Typography variant="body">Student Meals © 2023</Typography>
+
+          <Link variant="body2" href="https://www.flaticon.com/free-icons/enjoy" title="enjoy icons"
+           target="_blank" rel="noopener" sx={{ m: 3 }}
+          >
+            Enjoy icons created by tulpahn - Flaticon
+          </Link>
         </Stack>
       </Container>
     </ThemeProvider>

@@ -270,9 +270,8 @@ export default function Home() {
                   <Stack direction="row" spacing={4}>
 
                     <Box sx={{ width: '30%' }}>
-                      {recipe.imgUrl && (
-                        <Image src={recipe.imgUrl} alt="Image of the meal" />
-                      )}
+                      <Image src={recipe.imgUrl ?? "/default-recipe-image.png"}
+                       alt="Image of the meal" />
                     </Box>
 
                     <Box sx={{ width: '70%' }}>

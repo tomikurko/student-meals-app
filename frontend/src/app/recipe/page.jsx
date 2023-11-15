@@ -102,12 +102,9 @@ export default function GetRecipe() {
                   </>
                 )}
 
-                {recipe.imgUrl && (
-                  <>
-                    <br/>
-                    <Image src={recipe.imgUrl} alt="Image of the meal" sx={{ boxShadow: 2 }}/>
-                  </>
-                )}
+                <br/>
+                <Image src={recipe.imgUrl ?? "/default-recipe-image.png"}
+                 alt="Image of the meal" sx={{ boxShadow: 2 }}/>
               </Stack>
 
               <Stack direction="row" spacing={3}>
