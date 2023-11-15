@@ -8,21 +8,23 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import IconButton from '@mui/material/IconButton';
-import Link from '@mui/material/Link';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import * as React from 'react';
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 const pages = [['Recipes', '/'], ['Post recipe', '/post-recipe'], ['About us', '/about-us']];
 const settings = [['Profile', '/profile']];
 
 
 export default function SmAppBar() {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const router = useRouter();
+
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
 
   const onOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -95,8 +97,8 @@ export default function SmAppBar() {
               }}
             >
               {pages.map(([page, url]) => (
-                <MenuItem key={page} onClick={onCloseNavMenu}>
-                  <Link href={url} color="inherit" underline="hover">{page}</Link>
+                <MenuItem key={page} onClick={() => { onCloseNavMenu(); router.push(url); }}>
+                  {page}
                 </MenuItem>
               ))}
             </Menu>
@@ -156,8 +158,8 @@ export default function SmAppBar() {
               onClose={onCloseUserMenu}
             >
               {settings.map(([name, url]) => (
-                <MenuItem key={name} onClick={onCloseUserMenu}>
-                  <Link href={url} color="inherit" underline="hover">{name}</Link>
+                <MenuItem key={name} onClick={() => { onCloseUserMenu(); router.push(url); } }>
+                  {name}
                 </MenuItem>
               ))}
             </Menu>
