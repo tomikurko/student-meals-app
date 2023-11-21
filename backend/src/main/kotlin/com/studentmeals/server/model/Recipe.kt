@@ -8,6 +8,7 @@ data class Recipe(
     val author: String?,
     val description: String?,
     val pricePerMeal: BigDecimal?,
+    val imgData: String?,
     val imgUrl: String?,
     val ingredients: List<Ingredient>,
     val equipment: List<Equipment>

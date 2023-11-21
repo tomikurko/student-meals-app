@@ -1,5 +1,7 @@
 package com.studentmeals.server.rest
 
+import aws.sdk.kotlin.services.s3.*
+import aws.smithy.kotlin.runtime.content.ByteStream
 import com.studentmeals.server.db.jooq.tables.references.EQUIPMENT
 import com.studentmeals.server.db.jooq.tables.references.INGREDIENTS
 import com.studentmeals.server.db.jooq.tables.references.RECIPES
@@ -7,12 +9,16 @@ import com.studentmeals.server.db.toModel
 import com.studentmeals.server.model.Equipment
 import com.studentmeals.server.model.Ingredient
 import com.studentmeals.server.model.Recipe
+import kotlinx.coroutines.runBlocking
 import org.jooq.DSLContext
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.math.BigDecimal
+import java.util.UUID
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 @RestController
 @RequestMapping("/api/v1")
@@ -120,12 +126,42 @@ class RecipesController(private val create: DSLContext) {
 
     data class PostResult(val id: Int)
 
+    @OptIn(ExperimentalEncodingApi::class)
     @PostMapping("/recipes", consumes = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     fun postOne(@RequestBody recipe: Recipe): PostResult {
+        var imgUrl: String? = null
+
+        if (!recipe.imgData.isNullOrBlank()) {
+            val imgFilename = UUID.randomUUID().toString() + ".webp"
+            imgUrl = "https://s3.eu-north-1.amazonaws.com/img.studentmeals.site/$imgFilename"
+
+            val IMG_HEADER = "data:image/webp;base64,"
+
+            if (!recipe.imgData.startsWith(IMG_HEADER)) {
+                throw ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "invalid image data")
+            }
+
+            val imgData = Base64.decode(recipe.imgData.drop(IMG_HEADER.length))
+
+            runBlocking {
+                S3Client
+                    .fromEnvironment { region = "eu-north-1" }
+                    .use { s3 ->
+                        s3.putObject {
+                            bucket = "img.studentmeals.site"
+                            key = imgFilename
+                            contentType = "image/webp"
+                            body = ByteStream.fromBytes(imgData)
+                        }
+                    }
+            }
+        }
+
         val recipeRecord = create
             .insertInto(RECIPES, RECIPES.TITLE, RECIPES.AUTHOR, RECIPES.DESCRIPTION, RECIPES.PRICE_PER_MEAL, RECIPES.IMG_URL)
-            .values(recipe.title, recipe.author, recipe.description, recipe.pricePerMeal, recipe.imgUrl)
+            .values(recipe.title, recipe.author, recipe.description, recipe.pricePerMeal, imgUrl)
             .returningResult(RECIPES.ID)
             .fetchOne()
 

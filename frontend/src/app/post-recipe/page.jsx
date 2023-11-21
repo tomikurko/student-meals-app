@@ -1,6 +1,5 @@
 'use client'
 
-import AWS from "aws-sdk";
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Alert, Button, Card, Stack, Table, TableBody, TableCell, TableContainer,
@@ -10,7 +9,6 @@ import Image from 'mui-image';
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import Resizer from "react-image-file-resizer";
-import { v4 as uuidv4 } from "uuid";
 
 import { postRecipe } from "../../Services/RecipesService";
 
@@ -35,45 +33,17 @@ const resizeImage = (file) =>
     );
   });
 
-const uploadImgFile = async (file) => {
-  const S3_BUCKET = "img.studentmeals.site";
-  const REGION = "eu-north-1";
+async function encodeFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
 
-  AWS.config.update({
-    accessKeyId: "studentmeals-secret",
-    secretAccessKey: "studentmeals-secret",
-  });
-  const s3 = new AWS.S3({
-    params: { Bucket: S3_BUCKET },
-    region: REGION,
-  });
-
-  const filename = uuidv4() + ".webp";
-  const params = {
-    Bucket: S3_BUCKET,
-    Key: filename,
-    Body: file,
-  };
-
-  try {
-    const data = await s3
-      .putObject(params)
-      .on("httpUploadProgress", (evt) => {
-        console.log(
-          "Uploading " + parseInt((evt.loaded * 100) / evt.total) + "%"
-        );
-      })
-      .promise();
-
-    const url = `https://s3.eu-north-1.amazonaws.com/img.studentmeals.site/${filename}`;
-    console.log(`Image uploaded successfully to ${url}`);
-
-    return Promise.resolve(url);
-  } catch (e) {
-    console.error(e);
-    return Promise.reject(new Error("Failed to upload image"));
-  }
-};
+    reader.readAsDataURL(file)
+    reader.onload = () => {
+      resolve(reader.result)
+    }
+    reader.onerror = reject
+  })
+}
 
 
 export default function PostRecipe() {
@@ -145,14 +115,14 @@ export default function PostRecipe() {
     e.preventDefault();
 
     try {
-      let url = null;
+      let imgData = null;
 
       if (imgFileState == "file_selected") {
-        url = await uploadImgFile(imgFile);
+        imgData = await encodeFileAsBase64(imgFile);
       }
 
       const recipeId = await postRecipe(
-        title, author, price, url, amounts, ingredients,
+        title, author, price, imgData, amounts, ingredients,
         equipment.filter((item) => item && item != ""),
         description);
       const success = recipeId != null;

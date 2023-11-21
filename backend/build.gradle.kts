@@ -37,6 +37,10 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	"flywayMigration"(group = "org.postgresql", name = "postgresql")
 	"jooqGenerator"(group = "org.postgresql", name = "postgresql")
+	implementation("aws.sdk.kotlin:s3:0.35.0-beta") {
+		exclude("com.squareup.okhttp3:okhttp")
+	}
+	implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.11")
 }
 
 flyway {
