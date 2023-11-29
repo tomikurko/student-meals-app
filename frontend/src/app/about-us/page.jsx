@@ -8,8 +8,16 @@ export default function AboutUs() {
       <br/>
 
       <Typography variant="body" display="block">
-        We at Student Meals know how difficult it can be to cook a good meal with the limited ingredients,
-        equipment, money, and time of a student. With our recipe finder, this is easier than ever before.
+        We are two students from Aalto University, who had a vision to create
+        something great to improve the lives of students. We know how difficult
+        it can be to cook a good meal with the limited time, money, and
+        resources.  With this in mind, Student Meals was born. This service lets
+        you search for existing recipes made by your community by typing any
+        ingredients and equipment onto the search bar that you have at your
+        disposal. This makes cooking easier than ever. In addition, you can now
+        add your own favourite recipes by inputting the cost, ingredients,
+        equipment, and guide for others. These two functionalities are the heart
+        of Student Meals.
       </Typography>
 
       <br/>
