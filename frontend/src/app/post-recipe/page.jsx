@@ -1,48 +1,49 @@
 'use client'
 
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { Alert, Button, Card, Stack, Table, TableBody, TableCell, TableContainer,
-         TableHead, TableRow, TextField, Typography } from "@mui/material";
-import { styled } from '@mui/material/styles';
+import { Alert, Button, Stack, TextField, Typography } from "@mui/material";
 import Image from 'mui-image';
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
-import Resizer from "react-image-file-resizer";
+import { useState } from "react";
 
+import { resizeImage, encodeFileAsBase64 } from "./imgUtils";
+import { EquipmentTable, IngredientsTable } from "./RecipeContentsTables";
 import { postRecipe } from "../../Services/RecipesService";
 
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  backgroundColor: '#fffefb',
-}));
+function ImageSelection({ imgFile, imgFileState, onImgFileChange }) {
+  return (
+    <>
+      {imgFile && (
+        <Image src={URL.createObjectURL(imgFile)} width="100%" alt="Image of the meal" />
+      )}
 
-const resizeImage = (file) =>
-  new Promise((resolve) => {
-    Resizer.imageFileResizer(
-      file,
-      800,
-      800,
-      "WEBP",
-      100,
-      0,
-      (uri) => {
-        resolve(uri);
-      },
-      "file"
-    );
-  });
+      {imgFileState === "file_too_big" && (
+        <>
+          <Alert severity="error">Resized image is bigger than 1 MB in size! Please try another image.</Alert>
+        </>
+      )}
+      {imgFileState === "file_invalid" && (
+        <>
+          <Alert severity="error">Invalid image file! Please try another image.</Alert>
+        </>
+      )}
 
-async function encodeFileAsBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
+      <Button variant="contained" component="label">
+        Select image
+        <input type="file" hidden onChange={onImgFileChange} />
+      </Button>
+    </>
+  )
+}
 
-    reader.readAsDataURL(file)
-    reader.onload = () => {
-      resolve(reader.result)
-    }
-    reader.onerror = reject
-  })
+function RecipePostingAlert({ submitSuccess }) {
+  if (submitSuccess) {
+    return <Alert severity="success">Recipe posted successfully.</Alert>
+  } else if (submitSuccess === false) {
+    return <Alert severity="error">Failed to post the recipe!</Alert>
+  } else {
+    return <></>
+  }
 }
 
 
@@ -82,8 +83,7 @@ export default function PostRecipe() {
     setIngredients(ingredients);
   };
 
-  const onClickAddIngredient = (e) => {
-    e.preventDefault();
+  const onClickAddIngredient = () => {
     setAmounts(amounts.concat([""]));
     setIngredients(ingredients.concat([""]));
   };
@@ -98,8 +98,7 @@ export default function PostRecipe() {
     setEquipment(equipment);
   };
 
-  const onClickAddEquipment = (e) => {
-    e.preventDefault();
+  const onClickAddEquipment = () => {
     setEquipment(equipment.concat([""]));
   };
 
@@ -117,7 +116,7 @@ export default function PostRecipe() {
     try {
       let imgData = null;
 
-      if (imgFileState == "file_selected") {
+      if (imgFileState === "file_selected") {
         imgData = await encodeFileAsBase64(imgFile);
       }
 
@@ -165,25 +164,10 @@ export default function PostRecipe() {
         <Typography variant="h1">Post a new recipe</Typography>
         <br/>
 
-        {imgFile && (
-          <Image src={URL.createObjectURL(imgFile)} width="100%" alt="Image of the meal" />
-        )}
-
-        {imgFileState === "file_too_big" && (
-          <>
-            <Alert severity="error">Resized image is bigger than 1 MB in size! Please try another image.</Alert>
-          </>
-        )}
-        {imgFileState === "file_invalid" && (
-          <>
-            <Alert severity="error">Invalid image file! Please try another image.</Alert>
-          </>
-        )}
-
-        <Button variant="contained" component="label">
-          Select image
-          <input type="file" hidden onChange={onImgFileChange} />
-        </Button>
+        <ImageSelection
+          imgFile={imgFile}
+          imgFileState={imgFileState}
+          onImgFileChange={onImgFileChange} />
         <br/>
         <br/>
 
@@ -203,97 +187,28 @@ export default function PostRecipe() {
           <br/>
           <br/>
 
-          <TableContainer component={Card} sx={{ width: '100%' }}>
-            <Table>
-              <colgroup>
-                <col width="30%" />
-                <col width="60%" />
-                <col width="10%" />
-              </colgroup>
-
-              <TableHead>
-                <StyledTableRow>
-                  <TableCell colSpan={3}>Ingredients</TableCell>
-                </StyledTableRow>
-              </TableHead>
-
-              <TableBody>
-                {ingredients.map((ingredient, index) => (
-                  <StyledTableRow key={index}>
-                    <TableCell component="th" scope="row">
-                      <TextField id="amounts-{index}"
-                       fullWidth variant="standard" size="small"
-                       label="Amount" type="text" key={"A_" + Math.random()}
-                       onChange={(e) => onAmountsChange(index, e)}
-                       defaultValue={amounts[index]} />
-                    </TableCell>
-                    <TableCell>
-                      <TextField id="ingredients-{index}"
-                       fullWidth variant="standard" size="small"
-                       label="Ingredient" type="text" key={"I_" + Math.random()}
-                       onChange={(e) => onIngredientsChange(index, e)}
-                       defaultValue={ingredient}
-                       required />
-                    </TableCell>
-                    <TableCell>
-                      {index > 0 || ingredients.length > 1
-                      ? <Button variant="outlined" size="small" onClick={() => onClickRemoveIngredient(index)}><DeleteIcon /></Button>
-                      : <Button variant="outlined" size="small" disabled><DeleteIcon /></Button>
-                      }
-                    </TableCell>
-                  </StyledTableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <br/>
-          <Button variant="outlined" size="small" onClick={onClickAddIngredient}><AddIcon /></Button>
+          <IngredientsTable
+            ingredients={ingredients}
+            amounts={amounts}
+            onIngredientsChange={onIngredientsChange}
+            onAmountsChange={onAmountsChange}
+            onClickAddIngredient={onClickAddIngredient}
+            onClickRemoveIngredient={onClickRemoveIngredient} />
           <br/>
           <br/>
           <br/>
 
-          <TableContainer component={Card}>
-            <Table>
-              <colgroup>
-                <col width="90%" />
-                <col width="10%" />
-              </colgroup>
-
-              <TableHead>
-                <StyledTableRow>
-                  <TableCell colSpan={2}>Equipment</TableCell>
-                </StyledTableRow>
-              </TableHead>
-
-              <TableBody>
-                {equipment.map((equip, index) => (
-                  <StyledTableRow key={index}>
-                    <TableCell component="th" scope="row">
-                      <TextField id="equipment-{index}"
-                       fullWidth variant="standard" size="small"
-                       label="Equipment" type="text" key={"E_" + Math.random()}
-                       onChange={(e) => onEquipmentChange(index, e)}
-                       defaultValue={equip} />
-                    </TableCell>
-                    <TableCell>
-                      {index > 0 || equipment.length > 1
-                      ? <Button variant="outlined" size="small" onClick={() => onClickRemoveEquipment(index)}><DeleteIcon /></Button>
-                      : <Button variant="outlined" size="small" disabled><DeleteIcon /></Button>
-                      }
-                    </TableCell>
-                  </StyledTableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <br/>
-          <Button variant="outlined" size="small" onClick={onClickAddEquipment}><AddIcon /></Button>
+          <EquipmentTable
+            equipment={equipment}
+            onEquipmentChange={onEquipmentChange}
+            onClickAddEquipment={onClickAddEquipment}
+            onClickRemoveEquipment={onClickRemoveEquipment} />
           <br/>
           <br/>
           <br/>
 
           <TextField id="description" label="Description" multiline rows={10} sx={{ width: '100%' }}
-           onChange={onDescriptionChange} />
+            onChange={onDescriptionChange} />
           <br/>
           <br/>
           <br/>
@@ -302,8 +217,7 @@ export default function PostRecipe() {
           <br/>
           <br/>
 
-          {submitSuccess && <Alert severity="success">Recipe posted successfully.</Alert>}
-          {submitSuccess === false && <Alert severity="error">Failed to post the recipe!</Alert>}
+          <RecipePostingAlert submitSuccess={submitSuccess} />
         </form>
 
       </Stack>
