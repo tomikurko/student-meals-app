@@ -6,13 +6,12 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import * as React from 'react';
 
 
 export default function RemoveConfirmationDialog({ isOpen, onRemove, onCancel }) {
 
   return (
-    <React.Fragment>
+    <>
       <Dialog
         open={isOpen}
         onClose={onCancel}
@@ -32,6 +31,6 @@ export default function RemoveConfirmationDialog({ isOpen, onRemove, onCancel })
           <Button onClick={onRemove} autoFocus>Remove</Button>
         </DialogActions>
       </Dialog>
-    </React.Fragment>
+    </>
   );
 }
