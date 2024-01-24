@@ -22,12 +22,13 @@ export default function RemoveConfirmationDialog({ isOpen, onRemove, onCancel })
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          You should remove only recipes that you have created.
+          <p>You should remove only recipes that you have created.</p>
+          <p>Please request removal from the site administrator.</p>
         </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={onCancel}>Cancel</Button>
-        <Button onClick={onRemove} autoFocus>Remove</Button>
+        <Button disabled onClick={onRemove} autoFocus>Remove</Button>
       </DialogActions>
     </Dialog>
   );
