@@ -41,7 +41,7 @@ export default function Home() {
         {recipes && recipes.length === 0 && (
           <Alert severity="info">No recipes found!</Alert>
         )}
-        {recipes && recipes.map((recipe) => <RecipeCard recipe={recipe} />)}
+        {recipes && recipes.map((recipe, index) => <RecipeCard recipe={recipe} key={index} />)}
 
       </Stack>
     </Stack>
