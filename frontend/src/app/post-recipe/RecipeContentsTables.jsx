@@ -2,7 +2,7 @@
 
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Button, Card, Table, TableBody, TableCell, TableContainer,
+import { Box, Button, Card, Table, TableBody, TableCell, TableContainer,
          TableHead, TableRow, TextField } from "@mui/material";
 import { styled } from '@mui/material/styles';
 
@@ -14,8 +14,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 export function EquipmentTable({ equipment, onEquipmentChange, onClickAddEquipment, onClickRemoveEquipment }) {
   return (
-    <>
-      <TableContainer component={Card} sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%' }}>
+      <TableContainer component={Card}>
         <Table>
           <colgroup>
             <col width="90%" />
@@ -49,17 +49,17 @@ export function EquipmentTable({ equipment, onEquipmentChange, onClickAddEquipme
           </TableBody>
         </Table>
       </TableContainer>
-      <br/>
-      <Button variant="outlined" size="small" onClick={onClickAddEquipment}><AddIcon /></Button>
-    </>
+
+      <Button variant="outlined" size="small" onClick={onClickAddEquipment} sx={{ mt: 3 }}><AddIcon /></Button>
+    </Box>
   )
 }
 
 export function IngredientsTable({ ingredients, amounts, onIngredientsChange, onAmountsChange,
                                    onClickAddIngredient, onClickRemoveIngredient }) {
   return (
-    <>
-      <TableContainer component={Card} sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%' }}>
+      <TableContainer component={Card}>
         <Table>
           <colgroup>
             <col width="30%" />
@@ -102,8 +102,8 @@ export function IngredientsTable({ ingredients, amounts, onIngredientsChange, on
           </TableBody>
         </Table>
       </TableContainer>
-      <br/>
-      <Button variant="outlined" size="small" onClick={onClickAddIngredient}><AddIcon /></Button>
-    </>
+
+      <Button variant="outlined" size="small" onClick={onClickAddIngredient} sx={{ mt: 3 }}><AddIcon /></Button>
+    </Box>
   )
 }

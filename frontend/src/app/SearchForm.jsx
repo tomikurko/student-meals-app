@@ -3,7 +3,7 @@
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchIcon from '@mui/icons-material/Search';
-import { Button, IconButton, InputAdornment, Slider, TextField, Typography } from "@mui/material";
+import { Box, Button, IconButton, InputAdornment, Slider, Stack, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -26,26 +26,22 @@ const priceRangeMarks = () => {
 
 function SearchByTitle({ title, onTitleChange }) {
   return (
-    <>
-      <TextField id="title-contains-search" label="Search by title" type="search" sx={{ width: '50%' }}
-        onChange={onTitleChange}
-        defaultValue={title}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          ),
-        }} />
-      <br/>
-      <br/>
-    </>
+    <TextField id="title-contains-search" label="Search by title" type="search" sx={{ width: '50%' }}
+      onChange={onTitleChange}
+      defaultValue={title}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <SearchIcon />
+          </InputAdornment>
+        ),
+      }} />
   )
 }
 
 function SearchByPricePerMeal({ priceRange, setPriceRange }) {
   return (
-    <>
+    <Box sx={{ width: '60%' }}>
       <Typography gutterBottom>Price per meal</Typography>
       <Slider
         aria-label="Price per meal"
@@ -57,12 +53,8 @@ function SearchByPricePerMeal({ priceRange, setPriceRange }) {
         valueLabelDisplay="auto"
         value={priceRange}
         onChange={(event, newValue) => setPriceRange(newValue)}
-        sx={{ width: '60%' }}
       />
-      <br/>
-      <br/>
-      <br/>
-    </>
+    </Box>
   )
 }
 
@@ -130,49 +122,36 @@ export default function SearchForm({ qTitle, qMinPrice, qMaxPrice, qIngredients,
 
 
   return (
-    <>
+    <Stack spacing={4} justifyContent="center" alignItems="center" component="form" onSubmit={onClickSearch}>
+      <SearchByTitle title={title} onTitleChange={onTitleChange} />
 
-      <form onSubmit={onClickSearch}>
-        <br/>
+      {!criteriaExpanded && (
+        <IconButton onClick={() => setCriteriaExpanded(true)}>
+          <ExpandMoreIcon />
+        </IconButton>
+      )}
 
-        <SearchByTitle title={title} onTitleChange={onTitleChange} />
+      {criteriaExpanded && (
+        <>
+          <SearchByPricePerMeal priceRange={priceRange} setPriceRange={setPriceRange} />
+          <SearchByIngredientsTable
+            ingredients={ingredients}
+            onIngredientsChange={onIngredientsChange}
+            onClickAddIngredient={onClickAddIngredient}
+            onClickRemoveIngredient={onClickRemoveIngredient} />
+          <SearchByEquipmentTable
+            equipment={equipment}
+            onEquipmentChange={onEquipmentChange}
+            onClickAddEquipment={onClickAddEquipment}
+            onClickRemoveEquipment={onClickRemoveEquipment} />
 
-        {!criteriaExpanded && (
-          <IconButton onClick={() => setCriteriaExpanded(true)}>
-            <ExpandMoreIcon />
+          <IconButton onClick={() => setCriteriaExpanded(false)}>
+            <ExpandLessIcon />
           </IconButton>
-        )}
+        </>
+      )}
 
-        {criteriaExpanded && (
-          <>
-            <br/>
-
-            <SearchByPricePerMeal priceRange={priceRange} setPriceRange={setPriceRange} />
-            <SearchByIngredientsTable
-              ingredients={ingredients}
-              onIngredientsChange={onIngredientsChange}
-              onClickAddIngredient={onClickAddIngredient}
-              onClickRemoveIngredient={onClickRemoveIngredient} />
-            <SearchByEquipmentTable
-              equipment={equipment}
-              onEquipmentChange={onEquipmentChange}
-              onClickAddEquipment={onClickAddEquipment}
-              onClickRemoveEquipment={onClickRemoveEquipment} />
-
-            <IconButton onClick={() => setCriteriaExpanded(false)}>
-              <ExpandLessIcon />
-            </IconButton>
-          </>
-        )}
-        <br/>
-        <br/>
-        <br/>
-
-        <Button variant="contained" type="submit">Search</Button>
-      </form>
-      <br/>
-      <br/>
-
-    </>
+      <Button variant="contained" type="submit">Search</Button>
+    </Stack>
   )
 }

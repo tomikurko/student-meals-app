@@ -25,30 +25,25 @@ export default function Home() {
 
 
   return (
-    <>
-      <Stack spacing={2} justifyContent="center" alignItems="stretch">
+    <Stack justifyContent="center" alignItems="stretch">
 
-        <Stack spacing={2} justifyContent="center" alignItems="stretch">
+      <Typography variant="h1" sx={{ mb: 5 }}>Recipes</Typography>
 
-          <Typography variant="h1">Recipes</Typography>
-          <SearchForm
-            qTitle={qTitle}
-            qMinPrice={qMinPrice}
-            qMaxPrice={qMaxPrice}
-            qIngredients={qIngredients}
-            qEquipment={qEquipment} />
+      <SearchForm
+        qTitle={qTitle}
+        qMinPrice={qMinPrice}
+        qMaxPrice={qMaxPrice}
+        qIngredients={qIngredients}
+        qEquipment={qEquipment} />
 
-        </Stack>
+      <Stack spacing={3} justifyContent="center" alignItems="stretch" sx={{ mt: 8 }}>
 
-        <Stack spacing={3} justifyContent="center" alignItems="stretch">
+        {recipes && recipes.length === 0 && (
+          <Alert severity="info">No recipes found!</Alert>
+        )}
+        {recipes && recipes.map((recipe) => <RecipeCard recipe={recipe} />)}
 
-          {recipes && recipes.length === 0 && (
-            <Alert severity="info">No recipes found!</Alert>
-          )}
-          {recipes && recipes.map((recipe) => <RecipeCard recipe={recipe} />)}
-
-        </Stack>
       </Stack>
-    </>
+    </Stack>
   );
 }

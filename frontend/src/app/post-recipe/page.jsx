@@ -18,14 +18,10 @@ function ImageSelection({ imgFile, imgFileState, onImgFileChange }) {
       )}
 
       {imgFileState === "file_too_big" && (
-        <>
-          <Alert severity="error">Resized image is bigger than 1 MB in size! Please try another image.</Alert>
-        </>
+        <Alert severity="error">Resized image is bigger than 1 MB in size! Please try another image.</Alert>
       )}
       {imgFileState === "file_invalid" && (
-        <>
-          <Alert severity="error">Invalid image file! Please try another image.</Alert>
-        </>
+        <Alert severity="error">Invalid image file! Please try another image.</Alert>
       )}
 
       <Button variant="contained" component="label">
@@ -159,68 +155,50 @@ export default function PostRecipe() {
 
 
   return (
-    <>
-      <Stack spacing={2} justifyContent="center" alignItems="center">
-        <Typography variant="h1">Post a new recipe</Typography>
-        <br/>
+    <Stack spacing={5} justifyContent="center" alignItems="center">
 
-        <ImageSelection
-          imgFile={imgFile}
-          imgFileState={imgFileState}
-          onImgFileChange={onImgFileChange} />
-        <br/>
-        <br/>
+      <Typography variant="h1">Post a new recipe</Typography>
 
-        <form onSubmit={onClickSubmit}>
-          <TextField id="title" label="Title" type="text" required sx={{ minWidth: '50%' }} onChange={onTitleChange} />
-          <br/>
-          <br/>
+      <ImageSelection
+        imgFile={imgFile}
+        imgFileState={imgFileState}
+        onImgFileChange={onImgFileChange} />
 
-          <TextField id="author" label="Author" type="text" sx={{ minWidth: '50%' }} onChange={onAuthorChange} />
-          <br/>
-          <br/>
+      <Stack spacing={4} justifyContent="center" alignItems="center" component="form" onSubmit={onClickSubmit}>
+
+        <Stack spacing={3} justifyContent="center" sx={{ minWidth: '50%' }}>
+          <TextField id="title" label="Title" type="text" required onChange={onTitleChange} />
+
+          <TextField id="author" label="Author" type="text" onChange={onAuthorChange} />
 
           <TextField id="price" label="Price per meal (€)"
             inputProps={{ inputMode: 'numeric', pattern: '^[0-9]{1,4}(?:\\.[0-9]{1,2})?$' }}
-            sx={{ minWidth: '50%' }} onChange={onPriceChange} />
-          <br/>
-          <br/>
-          <br/>
+            onChange={onPriceChange} />
+        </Stack>
 
-          <IngredientsTable
-            ingredients={ingredients}
-            amounts={amounts}
-            onIngredientsChange={onIngredientsChange}
-            onAmountsChange={onAmountsChange}
-            onClickAddIngredient={onClickAddIngredient}
-            onClickRemoveIngredient={onClickRemoveIngredient} />
-          <br/>
-          <br/>
-          <br/>
+        <IngredientsTable
+          ingredients={ingredients}
+          amounts={amounts}
+          onIngredientsChange={onIngredientsChange}
+          onAmountsChange={onAmountsChange}
+          onClickAddIngredient={onClickAddIngredient}
+          onClickRemoveIngredient={onClickRemoveIngredient} />
 
-          <EquipmentTable
-            equipment={equipment}
-            onEquipmentChange={onEquipmentChange}
-            onClickAddEquipment={onClickAddEquipment}
-            onClickRemoveEquipment={onClickRemoveEquipment} />
-          <br/>
-          <br/>
-          <br/>
+        <EquipmentTable
+          equipment={equipment}
+          onEquipmentChange={onEquipmentChange}
+          onClickAddEquipment={onClickAddEquipment}
+          onClickRemoveEquipment={onClickRemoveEquipment} />
 
-          <TextField id="description" label="Description" multiline rows={10} sx={{ width: '100%' }}
-            onChange={onDescriptionChange} />
-          <br/>
-          <br/>
-          <br/>
+        <TextField id="description" label="Description" multiline rows={10} sx={{ width: '100%' }}
+          onChange={onDescriptionChange} />
 
-          <Button variant="contained" type="submit">Submit</Button>
-          <br/>
-          <br/>
+        <Button variant="contained" type="submit">Submit</Button>
 
-          <RecipePostingAlert submitSuccess={submitSuccess} />
-        </form>
+        <RecipePostingAlert submitSuccess={submitSuccess} />
 
       </Stack>
-    </>
+
+    </Stack>
   )
 }

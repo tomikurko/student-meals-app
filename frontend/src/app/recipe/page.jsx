@@ -39,14 +39,13 @@ function RecipePricePerMeal({ pricePerMeal }) {
   return (
     <>
       {pricePerMeal && (
-        <>
-          <br/>
-          <Typography variant="body2" display="inline"
-          sx={{ alignSelf: 'center', background: '#fff3e0', borderRadius: '25px', border: '1.0px solid #eeeeee', px: 2.0, py: 0.7}}
-          >
-            {pricePerMeal} €/meal
-          </Typography>
-        </>
+        <Typography variant="body2" display="inline"
+          sx={{ alignSelf: 'center', background: '#fff3e0',
+                borderRadius: '25px', border: '1.0px solid #eeeeee',
+                px: 2.0, py: 0.7}}
+        >
+          {pricePerMeal} €/meal
+        </Typography>
       )}
     </>
   )
@@ -54,11 +53,8 @@ function RecipePricePerMeal({ pricePerMeal }) {
 
 function RecipeImage({ imgUrl }) {
   return (
-    <>
-      <br/>
-      <Image src={imgUrl ?? "/default-recipe-image.png"}
-       alt="Image of the meal" sx={{ boxShadow: 2 }}/>
-    </>
+    <Image src={imgUrl ?? "/default-recipe-image.png"}
+      alt="Image of the meal" sx={{ boxShadow: 2 }}/>
   )
 }
 
@@ -99,29 +95,25 @@ export default function GetRecipe() {
 
 
   return (
-    <>
-      <Stack spacing={5} justifyContent="center" alignItems="stretch">
+    <Stack spacing={5} justifyContent="center" alignItems="stretch">
 
-        {recipe === null && <Alert severity="error">Recipe not found!</Alert>}
-        {recipe && (
-          <>
-            <RemoveConfirmationDialog isOpen={showRemoveConfirmation} onRemove={onRemove} onCancel={onCancelRemove} />
+      {recipe === null && <Alert severity="error">Recipe not found!</Alert>}
+      {recipe && (
+        <>
+          <RemoveConfirmationDialog isOpen={showRemoveConfirmation} onRemove={onRemove} onCancel={onCancelRemove} />
 
-            <Stack spacing={5}>
-              <Stack spacing={1}>
-                <RecipeRemovalAlert removeSuccess={removeSuccess} />
-                <RecipeTitleRow title={recipe.title} onConfirmRemove={onConfirmRemove} />
-                <RecipeAuthor author={recipe.author} />
-                <RecipePricePerMeal pricePerMeal={recipe.pricePerMeal} />
-                <RecipeImage imgUrl={recipe.imgUrl} />
-              </Stack>
+          <Stack spacing={2}>
+            <RecipeRemovalAlert removeSuccess={removeSuccess} />
+            <RecipeTitleRow title={recipe.title} onConfirmRemove={onConfirmRemove} />
+            <RecipeAuthor author={recipe.author} />
+            <RecipePricePerMeal pricePerMeal={recipe.pricePerMeal} />
+            <RecipeImage imgUrl={recipe.imgUrl} />
+          </Stack>
 
-              <RecipeContents recipe={recipe}/>
-            </Stack>
-          </>
-        )}
+          <RecipeContents recipe={recipe}/>
+        </>
+      )}
 
-      </Stack>
-    </>
+    </Stack>
   )
 }

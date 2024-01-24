@@ -8,7 +8,7 @@ import SmAppBar from './SmAppBar'
 
 
 const LinkBehaviour = forwardRef(function LinkBehaviour(props, ref) {
-    return <NextLink ref={ref} {...props} />;
+  return <NextLink ref={ref} {...props} />;
 });
 
 
@@ -51,7 +51,7 @@ export default function PageFrame({
       <SmAppBar />
 
       <Container maxWidth="md">
-        <Stack sx={{}}>
+        <Stack>
           <Card sx={{ backgroundColor: '#fffefb', m: 4, p: 3 }}>
             <CardContent>
 
@@ -60,10 +60,10 @@ export default function PageFrame({
             </CardContent>
           </Card>
 
-          <Typography variant="body">Student Meals © 2023</Typography>
+          <Typography variant="body">Student Meals © 2024</Typography>
 
           <Link variant="body2" href="https://www.flaticon.com/free-icons/enjoy" title="enjoy icons"
-           target="_blank" rel="noopener" sx={{ m: 3 }}
+            target="_blank" rel="noopener" sx={{ mt: 3 }}
           >
             Enjoy icons created by tulpahn - Flaticon
           </Link>

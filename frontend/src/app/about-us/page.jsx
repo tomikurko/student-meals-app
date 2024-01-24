@@ -4,8 +4,7 @@ import { Link, Typography } from "@mui/material"
 export default function AboutUs() {
   return (
     <>
-      <Typography variant="h1">About us</Typography>
-      <br/>
+      <Typography variant="h1" sx={{ mb: 4 }}>About us</Typography>
 
       <Typography variant="body" display="block">
         We are two students from Aalto University, who had a vision to create
@@ -20,9 +19,7 @@ export default function AboutUs() {
         of Student Meals.
       </Typography>
 
-      <br/>
-
-      <Typography variant="body" display="block">
+      <Typography variant="body" display="block" sx={{ mt: 2 }}>
         Contact us at: <Link href="mailto:studentmeals@studentmeals.site">studentmeals@studentmeals.site</Link>
       </Typography>
     </>
