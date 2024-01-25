@@ -83,13 +83,21 @@ function RecipeDescription({ description, width }) {
 
 export default function RecipeContents({ recipe }) {
   return (
-    <Stack direction="row" spacing={3}>
-      <Stack spacing={5} sx={{ width: '40%' }}>
-        <RecipeIngredients ingredients={recipe.ingredients} />
-        <RecipeEquipment equipment={recipe.equipment} />
+    <>
+      <Stack direction="row" spacing={3} sx={{ display: { xs: 'none', md: 'flex' } }}>
+        <Stack spacing={5} sx={{ width: '40%' }}>
+          <RecipeIngredients ingredients={recipe.ingredients} />
+          <RecipeEquipment equipment={recipe.equipment} />
+        </Stack>
+
+        <RecipeDescription description={recipe.description} width="60%" />
       </Stack>
 
-      <RecipeDescription description={recipe.description} width="60%" />
-    </Stack>
+      <Stack spacing={5} alignItems="stretch" sx={{ display: { xs: 'flex', md: 'none' } }}>
+        <RecipeIngredients ingredients={recipe.ingredients} />
+        <RecipeEquipment equipment={recipe.equipment} />
+        <RecipeDescription description={recipe.description} width="100%" />
+      </Stack>
+    </>
   )
 }

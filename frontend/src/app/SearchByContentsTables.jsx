@@ -14,7 +14,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 export function SearchByEquipmentTable({ equipment, onEquipmentChange,
                                          onClickAddEquipment, onClickRemoveEquipment }) {
   return (
-    <Box sx={{ width: '65%' }}>
+    <Box sx={{ width: { xs: '100%', sm: '65%' } }}>
       <TableContainer component={Card}>
         <Table>
           <colgroup>
@@ -60,7 +60,7 @@ export function SearchByEquipmentTable({ equipment, onEquipmentChange,
 export function SearchByIngredientsTable({ ingredients, onIngredientsChange,
                                            onClickAddIngredient, onClickRemoveIngredient }) {
   return (
-    <Box sx={{ width: '65%' }}>
+    <Box sx={{ width: { xs: '100%', sm: '65%' } }}>
       <TableContainer component={Card}>
         <Table>
           <colgroup>

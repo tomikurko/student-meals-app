@@ -40,7 +40,7 @@ export default function PageFrame({
     typography: {
       h1: {
         fontFamily: 'Lora',
-        fontSize: '3.5rem',
+        fontSize: '3.2rem',
       },
     },
   });
@@ -52,7 +52,7 @@ export default function PageFrame({
 
       <Container maxWidth="md">
         <Stack>
-          <Card sx={{ backgroundColor: '#fffefb', m: 4, p: 3 }}>
+          <Card sx={{ backgroundColor: '#fffefb', my: 4, p: { xs: 1, sm: 3 } }}>
             <CardContent>
 
               {children}

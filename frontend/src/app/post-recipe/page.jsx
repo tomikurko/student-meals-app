@@ -166,7 +166,7 @@ export default function PostRecipe() {
 
       <Stack spacing={4} justifyContent="center" alignItems="center" component="form" onSubmit={onClickSubmit}>
 
-        <Stack spacing={3} justifyContent="center" sx={{ minWidth: '50%' }}>
+        <Stack spacing={3} justifyContent="center" sx={{ minWidth: { xs: '100%', sm: '50%' } }}>
           <TextField id="title" label="Title" type="text" required onChange={onTitleChange} />
 
           <TextField id="author" label="Author" type="text" onChange={onAuthorChange} />

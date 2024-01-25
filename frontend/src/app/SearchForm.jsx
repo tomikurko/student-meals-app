@@ -26,7 +26,7 @@ const priceRangeMarks = () => {
 
 function SearchByTitle({ title, onTitleChange }) {
   return (
-    <TextField id="title-contains-search" label="Search by title" type="search" sx={{ width: '50%' }}
+    <TextField id="title-contains-search" label="Search by title" type="search" sx={{ width: { xs: '100%', sm: '50%' } }}
       onChange={onTitleChange}
       defaultValue={title}
       InputProps={{
@@ -41,7 +41,7 @@ function SearchByTitle({ title, onTitleChange }) {
 
 function SearchByPricePerMeal({ priceRange, setPriceRange }) {
   return (
-    <Box sx={{ width: '60%' }}>
+    <Box sx={{ width: { xs: '95%', sm: '60%' } }}>
       <Typography gutterBottom>Price per meal</Typography>
       <Slider
         aria-label="Price per meal"

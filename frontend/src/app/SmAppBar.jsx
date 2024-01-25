@@ -114,6 +114,7 @@ export default function SmAppBar() {
               display: { xs: 'flex', md: 'none' },
               flexGrow: 1,
               fontFamily: 'monospace',
+              fontSize: { xs: 18, sm: 24 },
               fontWeight: 700,
               letterSpacing: '.3rem',
               color: 'inherit',
