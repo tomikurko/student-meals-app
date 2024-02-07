@@ -11,6 +11,8 @@ services:
       - '${POSTGRES_HOST_PORT}:5432'
     networks:
       - backend
+    volumes:
+      - db-data:/var/lib/postgresql/data
 
   server:
     image: 'public.ecr.aws/o6b6o8s4/studentmeals:latest'
@@ -30,3 +32,6 @@ services:
 
 networks:
   backend:
+
+volumes:
+  db-data:
